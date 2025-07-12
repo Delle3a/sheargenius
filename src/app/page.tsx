@@ -9,11 +9,8 @@ import { services, barbers } from "@/lib/data";
 import { BarberPole } from "@/components/icons";
 import { Phone, MapPin, Mail } from "lucide-react";
 import { HeroActionButton } from "@/components/hero-action-button";
-import { useTranslation } from "@/context/language-context";
 
 export default function Home() {
-  const { t } = useTranslation();
-
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-1">
@@ -23,10 +20,10 @@ export default function Home() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline">
-                    {t('heroTitle')}
+                    Barbier Shear Genius
                   </h1>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    {t('heroSubtitle')}
+                    Découvrez l'art du toilettage. Coupes de précision, rasages classiques et une atmosphère intemporelle. Prenez votre rendez-vous aujourd'hui.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
@@ -49,10 +46,10 @@ export default function Home() {
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">{t('servicesTitle')}</div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">{t('servicesSubtitle')}</h2>
+                <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">Nos Services</div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Des coupes classiques aux styles modernes</h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  From classic cuts to modern styles, our master barbers provide a wide range of grooming services.
+                  Des coupes classiques aux styles modernes, nos maîtres barbiers proposent une large gamme de services de toilettage.
                 </p>
               </div>
             </div>
@@ -79,10 +76,10 @@ export default function Home() {
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">{t('teamTitle')}</div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">{t('teamSubtitle')}</h2>
+                <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">Notre Équipe</div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">Rencontrez Nos Barbiers</h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  {t('teamDescription')}
+                  Nos professionnels qualifiés se consacrent à l'art de la coiffure.
                 </p>
               </div>
             </div>
@@ -110,9 +107,9 @@ export default function Home() {
         <section id="contact" className="w-full py-12 md:py-24 lg:py-32">
           <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
             <div className="space-y-3">
-              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight font-headline">{t('contactTitle')}</h2>
+              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight font-headline">Rendez-nous visite</h2>
               <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                {t('contactDescription')}
+                Nous attendons votre visite avec impatience. Retrouvez-nous au cœur de la ville.
               </p>
             </div>
             <div className="mx-auto w-full max-w-sm space-y-4">

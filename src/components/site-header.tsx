@@ -3,7 +3,6 @@
 
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
-import { useTranslation } from "@/context/language-context";
 import { Button } from "@/components/ui/button";
 import { BarberPole } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,16 +13,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
-import { Globe } from "lucide-react";
 
 export function SiteHeader() {
   const { isAuthenticated, user, logout, isAdmin, isBarber } = useAuth();
-  const { t, setLanguage, language } = useTranslation();
   const router = useRouter();
 
   const handleLogout = () => {
@@ -42,44 +36,27 @@ export function SiteHeader() {
           <nav className="hidden md:flex gap-6">
             {!isAdmin && !isBarber && (
                <Link href="/book" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-                {t('bookNow')}
+                Réserver maintenant
               </Link>
             )}
             {isAuthenticated && !isAdmin && !isBarber && (
               <Link href="/dashboard/appointments" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-                {t('myDashboard')}
+                Mon tableau de bord
               </Link>
             )}
             {isAdmin && (
               <Link href="/admin" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-                {t('adminPanel')}
+                Panneau d'administration
               </Link>
             )}
             {isBarber && (
               <Link href="/barber" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-                {t('mySchedule')}
+                Mon horaire
               </Link>
             )}
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
-           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Globe className="h-5 w-5" />
-                <span className="sr-only">Change language</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setLanguage('en')} disabled={language === 'en'}>
-                English
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLanguage('fr')} disabled={language === 'fr'}>
-                Français
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           {isAuthenticated ? (
              <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -100,21 +77,21 @@ export function SiteHeader() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {isAdmin ? (
-                   <DropdownMenuItem onClick={() => router.push('/admin/profile')}>{t('myProfile')}</DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => router.push('/admin/profile')}>Mon profil</DropdownMenuItem>
                 ) : isBarber ? (
-                   <DropdownMenuItem onClick={() => router.push('/barber/profile')}>{t('myProfile')}</DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => router.push('/barber/profile')}>Mon profil</DropdownMenuItem>
                 ) : (
-                   <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>{t('myProfile')}</DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>Mon profil</DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
-                  {t('logout')}
+                  Se déconnecter
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <Button asChild>
-              <Link href="/login">{t('login')}</Link>
+              <Link href="/login">Connexion</Link>
             </Button>
           )}
         </div>
