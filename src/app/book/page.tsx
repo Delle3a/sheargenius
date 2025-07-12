@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { services, barbers, availableTimeSlots } from "@/lib/data";
+import { services, barbers, availableTimeSlots, bookings } from "@/lib/data";
+import type { Booking } from "@/lib/data";
 import { format } from 'date-fns';
 import { CheckCircle } from "lucide-react";
 
@@ -37,7 +38,7 @@ export default function BookAppointmentPage() {
   }, [isAuthenticated, router]);
   
   const handleBooking = () => {
-    if (!date || !selectedService || !selectedBarber || !selectedTime) {
+    if (!date || !selectedService || !selectedBarber || !selectedTime || !user) {
       toast({
         title: "Incomplete Information",
         description: "Please complete all previous steps.",
@@ -46,14 +47,26 @@ export default function BookAppointmentPage() {
       return;
     }
     
-    // In a real app, this would call a server action to save to Firestore.
-    console.log({
-      userId: user?.id,
+    let barberToBook = selectedBarber;
+    if (barberToBook === 'any') {
+      // Randomly assign a barber if 'Any Available' is selected
+      const availableBarbers = barbers;
+      const randomIndex = Math.floor(Math.random() * availableBarbers.length);
+      barberToBook = availableBarbers[randomIndex].id;
+    }
+
+    const newBooking: Booking = {
+      id: (bookings.length + 1).toString(),
+      userId: user.id,
       serviceId: selectedService,
-      barberId: selectedBarber,
+      barberId: barberToBook,
       date: format(date, 'yyyy-MM-dd'),
       time: selectedTime,
-    });
+      status: 'upcoming'
+    };
+    
+    // In a real app, this would be a server action. Here we add to the in-memory array.
+    bookings.push(newBooking);
     
     toast({
       title: "Booking Confirmed!",
@@ -181,7 +194,7 @@ export default function BookAppointmentPage() {
                 <CardContent className="space-y-4">
                     <div className="space-y-2 p-4 border rounded-md bg-muted/50">
                         <p><strong>Service:</strong> {serviceDetails?.name}</p>
-                        <p><strong>Barber:</strong> {barberDetails?.name || 'Any Available'}</p>
+                        <p><strong>Barber:</strong> {selectedBarber === 'any' ? 'Any Available' : barberDetails?.name}</p>
                         <p><strong>Date:</strong> {date ? format(date, "EEEE, MMMM d, yyyy") : 'Not selected'}</p>
                         <p><strong>Time:</strong> {selectedTime || 'Not selected'}</p>
                     </div>

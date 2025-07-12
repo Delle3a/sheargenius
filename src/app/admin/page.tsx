@@ -32,7 +32,13 @@ export default function AdminAppointmentsPage() {
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
 
   const handleStatusChange = (bookingId: string, status: Booking['status']) => {
-    setBookings(bookings.map(b => b.id === bookingId ? { ...b, status } : b));
+    const updatedBookings = bookings.map(b => b.id === bookingId ? { ...b, status } : b);
+    setBookings(updatedBookings);
+    // In a real app, you'd also update the source `initialBookings` array or a database
+    const bookingIndex = initialBookings.findIndex(b => b.id === bookingId);
+    if (bookingIndex > -1) {
+      initialBookings[bookingIndex].status = status;
+    }
   };
   
   return (
@@ -59,7 +65,7 @@ export default function AdminAppointmentsPage() {
               const barber = barbers.find((b) => b.id === booking.barberId);
               return (
                 <TableRow key={booking.id}>
-                  <TableCell className="font-medium">{user?.name}</TableCell>
+                  <TableCell className="font-medium">{user?.name || `User ID: ${booking.userId}`}</TableCell>
                   <TableCell>{service?.name}</TableCell>
                   <TableCell>{barber?.name}</TableCell>
                   <TableCell>
