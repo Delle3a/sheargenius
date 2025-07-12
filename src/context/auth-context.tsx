@@ -7,15 +7,16 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'customer' | 'admin';
+  role: 'customer' | 'admin' | 'barber';
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (role: 'customer' | 'admin') => void;
+  login: (role: 'customer' | 'admin' | 'barber') => void;
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isBarber: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,7 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const login = (role: 'customer' | 'admin') => {
+  const login = (role: 'customer' | 'admin' | 'barber') => {
     const userToLogin = users.find(u => u.role === role);
     if (userToLogin) {
       setUser(userToLogin);
@@ -46,9 +47,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const isAuthenticated = !!user;
   const isAdmin = user?.role === 'admin';
+  const isBarber = user?.role === 'barber';
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, isAdmin }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, isAdmin, isBarber }}>
       {children}
     </AuthContext.Provider>
   );

@@ -16,7 +16,7 @@ import {
 import { useRouter } from "next/navigation";
 
 export function SiteHeader() {
-  const { isAuthenticated, user, logout, isAdmin } = useAuth();
+  const { isAuthenticated, user, logout, isAdmin, isBarber } = useAuth();
   const router = useRouter();
 
   const handleLogout = () => {
@@ -33,12 +33,12 @@ export function SiteHeader() {
             <span className="inline-block font-bold font-headline text-lg">Shear Genius</span>
           </Link>
           <nav className="hidden md:flex gap-6">
-            {!isAdmin && (
+            {!isAdmin && !isBarber && (
                <Link href="/book" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
                 Book Now
               </Link>
             )}
-            {isAuthenticated && !isAdmin && (
+            {isAuthenticated && !isAdmin && !isBarber && (
               <Link href="/dashboard/appointments" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
                 My Dashboard
               </Link>
@@ -46,6 +46,11 @@ export function SiteHeader() {
             {isAdmin && (
               <Link href="/admin" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
                 Admin Panel
+              </Link>
+            )}
+            {isBarber && (
+              <Link href="/barber" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
+                My Schedule
               </Link>
             )}
           </nav>
@@ -73,6 +78,8 @@ export function SiteHeader() {
                   <DropdownMenuSeparator />
                   {isAdmin ? (
                      <DropdownMenuItem onClick={() => router.push('/admin')}>Admin Dashboard</DropdownMenuItem>
+                  ) : isBarber ? (
+                     <DropdownMenuItem onClick={() => router.push('/barber')}>My Schedule</DropdownMenuItem>
                   ) : (
                      <DropdownMenuItem onClick={() => router.push('/dashboard/appointments')}>My Dashboard</DropdownMenuItem>
                   )}

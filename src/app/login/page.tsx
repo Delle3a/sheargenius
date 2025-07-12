@@ -25,9 +25,15 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, router]);
 
-  const handleLogin = (role: 'customer' | 'admin') => {
+  const handleLogin = (role: 'customer' | 'admin' | 'barber') => {
     login(role);
-    router.push(role === 'admin' ? '/admin' : '/dashboard/appointments');
+    if (role === 'admin') {
+      router.push('/admin');
+    } else if (role === 'barber') {
+      router.push('/barber');
+    } else {
+      router.push('/dashboard/appointments');
+    }
   };
 
   return (
@@ -36,7 +42,7 @@ export default function LoginPage() {
         <CardHeader>
           <CardTitle className="text-2xl font-headline">Login</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account. For this demo, you can log in as a customer or admin.
+            Enter your email below to login to your account. For this demo, you can log in as a customer, barber, or admin.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -52,6 +58,9 @@ export default function LoginPage() {
         <CardFooter className="flex flex-col gap-4">
           <Button className="w-full" onClick={() => handleLogin('customer')}>
             Login as Customer
+          </Button>
+           <Button className="w-full" variant="secondary" onClick={() => handleLogin('barber')}>
+            Login as Barber
           </Button>
           <Button className="w-full" variant="outline" onClick={() => handleLogin('admin')}>
             Login as Admin

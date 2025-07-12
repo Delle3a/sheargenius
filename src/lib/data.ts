@@ -42,6 +42,7 @@ export const barbers: Barber[] = [
 export const users: User[] = [
   { id: '1', name: 'John Doe', email: 'customer@test.com', role: 'customer' },
   { id: '2', name: 'Admin', email: 'admin@test.com', role: 'admin' },
+  { id: '3', name: 'Sam Chen', email: 'barber@test.com', role: 'barber'}, // This user is also a barber
 ];
 
 export let bookings: Booking[] = [
@@ -65,11 +66,20 @@ export let bookings: Booking[] = [
   },
     {
     id: '3',
-    userId: '3',
+    userId: '1', // A customer booked this
     serviceId: '2',
-    barberId: '3',
+    barberId: '3', // But it's for barber Sam Chen
     date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     time: '11:00',
+    status: 'upcoming',
+  },
+   {
+    id: '4',
+    userId: '1', 
+    serviceId: '4',
+    barberId: '3', // Another one for Sam Chen
+    date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    time: '15:00',
     status: 'upcoming',
   },
 ];
