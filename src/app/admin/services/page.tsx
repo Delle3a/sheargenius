@@ -1,0 +1,160 @@
+"use client";
+
+import { useState } from 'react';
+import { services as initialServices } from '@/lib/data';
+import type { Service } from '@/lib/data';
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+export default function AdminServicesPage() {
+  const [services, setServices] = useState<Service[]>(initialServices);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingService, setEditingService] = useState<Service | null>(null);
+
+  const handleSaveService = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const serviceData = {
+      name: formData.get('name') as string,
+      price: Number(formData.get('price')),
+      duration: Number(formData.get('duration')),
+    };
+
+    if (editingService) {
+      // Update existing service
+      const updatedServices = services.map(s =>
+        s.id === editingService.id ? { ...s, ...serviceData } : s
+      );
+      setServices(updatedServices);
+    } else {
+      // Add new service
+      const newService: Service = {
+        id: (services.length + 1).toString(),
+        ...serviceData,
+      };
+      setServices([...services, newService]);
+    }
+    setIsDialogOpen(false);
+    setEditingService(null);
+  };
+
+  const handleDeleteService = (serviceId: string) => {
+    setServices(services.filter(s => s.id !== serviceId));
+  };
+
+  const openEditDialog = (service: Service) => {
+    setEditingService(service);
+    setIsDialogOpen(true);
+  };
+  
+  const openNewDialog = () => {
+    setEditingService(null);
+    setIsDialogOpen(true);
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold font-headline">Manage Services</h1>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button onClick={openNewDialog}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Service
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle className="font-headline">{editingService ? "Edit Service" : "Add New Service"}</DialogTitle>
+              <DialogDescription>
+                {editingService ? "Update the details of this service." : "Add a new service to your offerings."}
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSaveService}>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">Name</Label>
+                  <Input id="name" name="name" defaultValue={editingService?.name} className="col-span-3" required />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="price" className="text-right">Price ($)</Label>
+                  <Input id="price" name="price" type="number" defaultValue={editingService?.price} className="col-span-3" required />
+                </div>
+                 <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="duration" className="text-right">Duration (min)</Label>
+                  <Input id="duration" name="duration" type="number" defaultValue={editingService?.duration} className="col-span-3" required />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="submit">Save changes</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Duration</TableHead>
+              <TableHead><span className="sr-only">Actions</span></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {services.map(service => (
+              <TableRow key={service.id}>
+                <TableCell className="font-medium">{service.name}</TableCell>
+                <TableCell>${service.price.toFixed(2)}</TableCell>
+                <TableCell>{service.duration} min</TableCell>
+                <TableCell className="text-right">
+                   <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Toggle menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => openEditDialog(service)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive" onClick={() => handleDeleteService(service.id)}>Delete</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
