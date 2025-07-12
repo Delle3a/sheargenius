@@ -1,11 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { services, barbers } from "@/lib/data";
 import { BarberPole } from "@/components/icons";
 import { Phone, MapPin, Mail } from "lucide-react";
+import { HeroActionButton } from "@/components/hero-action-button";
 
 export default function Home() {
   return (
@@ -24,9 +24,7 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                    <Link href="/book">Book Now</Link>
-                  </Button>
+                  <HeroActionButton />
                 </div>
               </div>
               <Image
