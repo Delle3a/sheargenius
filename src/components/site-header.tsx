@@ -33,9 +33,11 @@ export function SiteHeader() {
             <span className="inline-block font-bold font-headline text-lg">Shear Genius</span>
           </Link>
           <nav className="hidden md:flex gap-6">
-             <Link href="/book" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-              Book Now
-            </Link>
+            {!isAdmin && (
+               <Link href="/book" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
+                Book Now
+              </Link>
+            )}
             {isAuthenticated && !isAdmin && (
               <Link href="/dashboard/appointments" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
                 My Dashboard
