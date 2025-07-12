@@ -34,8 +34,7 @@ export default function DashboardLayout({
   
   const navItems = [
     { href: "/dashboard/appointments", label: "My Appointments", icon: Calendar },
-    // You can add more user dashboard links here later, e.g., Profile
-    // { href: "/dashboard/profile", label: "Profile", icon: User },
+    { href: "/dashboard/profile", label: "My Profile", icon: User },
   ];
 
   return (

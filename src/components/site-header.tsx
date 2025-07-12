@@ -79,9 +79,9 @@ export function SiteHeader() {
                   {isAdmin ? (
                      <DropdownMenuItem onClick={() => router.push('/admin/profile')}>My Profile</DropdownMenuItem>
                   ) : isBarber ? (
-                     <DropdownMenuItem onClick={() => router.push('/barber')}>My Schedule</DropdownMenuItem>
+                     <DropdownMenuItem onClick={() => router.push('/barber/profile')}>My Profile</DropdownMenuItem>
                   ) : (
-                     <DropdownMenuItem onClick={() => router.push('/dashboard/appointments')}>My Dashboard</DropdownMenuItem>
+                     <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>My Profile</DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>

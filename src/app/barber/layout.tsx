@@ -36,8 +36,7 @@ export default function BarberLayout({
   
   const navItems = [
     { href: "/barber", label: "My Schedule", icon: Calendar },
-    // You can add more barber dashboard links here later
-    // { href: "/barber/profile", label: "My Profile", icon: User },
+    { href: "/barber/profile", label: "My Profile", icon: User },
   ];
 
   return (
