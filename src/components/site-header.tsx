@@ -36,14 +36,14 @@ export function SiteHeader() {
              <Link href="/book" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
               Book Now
             </Link>
-            {isAuthenticated && (
-              <Link href="/appointments" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-                My Appointments
+            {isAuthenticated && !isAdmin && (
+              <Link href="/dashboard/appointments" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
+                My Dashboard
               </Link>
             )}
             {isAdmin && (
               <Link href="/admin" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-                Admin
+                Admin Panel
               </Link>
             )}
           </nav>
@@ -69,10 +69,11 @@ export function SiteHeader() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => router.push('/appointments')}>
-                    My Appointments
-                  </DropdownMenuItem>
-                   {isAdmin && <DropdownMenuItem onClick={() => router.push('/admin')}>Dashboard</DropdownMenuItem>}
+                  {isAdmin ? (
+                     <DropdownMenuItem onClick={() => router.push('/admin')}>Admin Dashboard</DropdownMenuItem>
+                  ) : (
+                     <DropdownMenuItem onClick={() => router.push('/dashboard/appointments')}>My Dashboard</DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     Log out

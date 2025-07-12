@@ -27,7 +27,7 @@ export default function LoginPage() {
 
   const handleLogin = (role: 'customer' | 'admin') => {
     login(role);
-    router.push(role === 'admin' ? '/admin' : '/appointments');
+    router.push(role === 'admin' ? '/admin' : '/dashboard/appointments');
   };
 
   return (
