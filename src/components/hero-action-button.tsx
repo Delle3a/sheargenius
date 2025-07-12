@@ -1,22 +1,25 @@
+
 "use client";
 
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
+import { useTranslation } from "@/context/language-context";
 import { Button } from "@/components/ui/button";
 
 export function HeroActionButton() {
   const { isAuthenticated, isAdmin, isBarber } = useAuth();
+  const { t } = useTranslation();
 
   let href = "/book";
-  let text = "Book Now";
+  let text = t('bookNow');
 
   if (isAuthenticated) {
     if (isAdmin) {
       href = "/admin";
-      text = "Go to Admin Panel";
+      text = t('adminPanel');
     } else if (isBarber) {
       href = "/barber";
-      text = "View My Schedule";
+      text = t('mySchedule');
     }
   }
 

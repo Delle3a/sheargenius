@@ -1,5 +1,7 @@
+
 import type { Metadata } from "next";
 import { AuthProvider } from "@/context/auth-context";
+import { LanguageProvider } from "@/context/language-context";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Toaster } from "@/components/ui/toaster";
@@ -27,10 +29,12 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col">
         <AuthProvider>
-          <SiteHeader />
-          <main className="flex-grow">{children}</main>
-          <SiteFooter />
-          <Toaster />
+          <LanguageProvider>
+            <SiteHeader />
+            <main className="flex-grow">{children}</main>
+            <SiteFooter />
+            <Toaster />
+          </LanguageProvider>
         </AuthProvider>
       </body>
     </html>
