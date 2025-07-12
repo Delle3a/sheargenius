@@ -21,8 +21,8 @@ export default function AdminProfilePage() {
     e.preventDefault();
     // In a real app, you would handle form submission to update user data.
     toast({
-        title: "Profile Updated",
-        description: "Your profile information has been saved.",
+        title: "Profil mis à jour",
+        description: "Vos informations de profil ont été enregistrées.",
     });
   };
 
@@ -32,27 +32,27 @@ export default function AdminProfilePage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold font-headline mb-6">My Profile</h1>
+      <h1 className="text-3xl font-bold font-headline mb-6">Mon Profil</h1>
       <Card>
         <CardHeader>
-          <CardTitle>Account Information</CardTitle>
-          <CardDescription>Update your personal details here.</CardDescription>
+          <CardTitle>Informations du compte</CardTitle>
+          <CardDescription>Mettez à jour vos informations personnelles ici.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">Nom</Label>
               <Input id="name" defaultValue={user.name} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email">Adresse e-mail</Label>
               <Input id="email" type="email" defaultValue={user.email} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">New Password</Label>
-              <Input id="password" type="password" placeholder="Leave blank to keep current password" />
+              <Label htmlFor="password">Nouveau mot de passe</Label>
+              <Input id="password" type="password" placeholder="Laissez vide pour conserver le mot de passe actuel" />
             </div>
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit">Enregistrer</Button>
           </form>
         </CardContent>
       </Card>

@@ -91,7 +91,7 @@ export default function AdminBarbersPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold font-headline">Manage Barbers</h1>
+        <h1 className="text-3xl font-bold font-headline">Gérer les coiffeurs</h1>
         <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
           setIsDialogOpen(isOpen);
           if (!isOpen) setEditingBarber(null);
@@ -99,37 +99,37 @@ export default function AdminBarbersPage() {
           <DialogTrigger asChild>
             <Button onClick={openNewDialog}>
                 <PlusCircle className="mr-2 h-4 w-4" />
-                Add Barber
+                Ajouter un coiffeur
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle className="font-headline">{editingBarber ? "Edit Barber" : "Add New Barber"}</DialogTitle>
+              <DialogTitle className="font-headline">{editingBarber ? "Modifier le coiffeur" : "Ajouter un nouveau coiffeur"}</DialogTitle>
               <DialogDescription>
-                {editingBarber ? "Update the details for this barber." : "Add a new barber to your team."}
+                {editingBarber ? "Mettez à jour les détails de ce coiffeur." : "Ajoutez un nouveau coiffeur à votre équipe."}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSaveBarber}>
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">Name</Label>
+                  <Label htmlFor="name" className="text-right">Nom</Label>
                   <Input id="name" name="name" defaultValue={editingBarber?.name} className="col-span-3" required />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="specialty" className="text-right">Specialty</Label>
+                  <Label htmlFor="specialty" className="text-right">Spécialité</Label>
                   <Input id="specialty" name="specialty" defaultValue={editingBarber?.specialty} className="col-span-3" required />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="avatarUrl" className="text-right">Avatar URL</Label>
+                  <Label htmlFor="avatarUrl" className="text-right">URL de l'avatar</Label>
                   <Input id="avatarUrl" name="avatarUrl" defaultValue={editingBarber?.avatarUrl} className="col-span-3" />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="isAvailable" className="text-right">Available</Label>
+                  <Label htmlFor="isAvailable" className="text-right">Disponible</Label>
                    <Checkbox id="isAvailable" name="isAvailable" defaultChecked={editingBarber?.isAvailable ?? true} className="col-span-3" />
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit">Save changes</Button>
+                <Button type="submit">Enregistrer</Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -140,10 +140,10 @@ export default function AdminBarbersPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Barber</TableHead>
-              <TableHead>Specialty</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Available</TableHead>
+              <TableHead>Coiffeur</TableHead>
+              <TableHead>Spécialité</TableHead>
+              <TableHead>Statut</TableHead>
+              <TableHead>Disponible</TableHead>
               <TableHead><span className="sr-only">Actions</span></TableHead>
             </TableRow>
           </TableHeader>
@@ -162,7 +162,7 @@ export default function AdminBarbersPage() {
                 <TableCell>{barber.specialty}</TableCell>
                 <TableCell>
                   <Badge variant={barber.isAvailable ? "default" : "secondary"}>
-                    {barber.isAvailable ? "Available" : "Unavailable"}
+                    {barber.isAvailable ? "Disponible" : "Indisponible"}
                   </Badge>
                 </TableCell>
                 <TableCell>
@@ -181,8 +181,8 @@ export default function AdminBarbersPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => openEditDialog(barber)}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive" onClick={() => handleDeleteBarber(barber.id)}>Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => openEditDialog(barber)}>Modifier</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive" onClick={() => handleDeleteBarber(barber.id)}>Supprimer</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                 </TableCell>

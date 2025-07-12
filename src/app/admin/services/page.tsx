@@ -81,38 +81,38 @@ export default function AdminServicesPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold font-headline">Manage Services</h1>
+        <h1 className="text-3xl font-bold font-headline">Gérer les services</h1>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={openNewDialog}>
                 <PlusCircle className="mr-2 h-4 w-4" />
-                Add Service
+                Ajouter un service
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle className="font-headline">{editingService ? "Edit Service" : "Add New Service"}</DialogTitle>
+              <DialogTitle className="font-headline">{editingService ? "Modifier le service" : "Ajouter un nouveau service"}</DialogTitle>
               <DialogDescription>
-                {editingService ? "Update the details of this service." : "Add a new service to your offerings."}
+                {editingService ? "Mettez à jour les détails de ce service." : "Ajoutez un nouveau service à vos offres."}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSaveService}>
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">Name</Label>
+                  <Label htmlFor="name" className="text-right">Nom</Label>
                   <Input id="name" name="name" defaultValue={editingService?.name} className="col-span-3" required />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="price" className="text-right">Price ($)</Label>
+                  <Label htmlFor="price" className="text-right">Prix (€)</Label>
                   <Input id="price" name="price" type="number" defaultValue={editingService?.price} className="col-span-3" required />
                 </div>
                  <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="duration" className="text-right">Duration (min)</Label>
+                  <Label htmlFor="duration" className="text-right">Durée (min)</Label>
                   <Input id="duration" name="duration" type="number" defaultValue={editingService?.duration} className="col-span-3" required />
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit">Save changes</Button>
+                <Button type="submit">Enregistrer</Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -123,9 +123,9 @@ export default function AdminServicesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Duration</TableHead>
+              <TableHead>Nom</TableHead>
+              <TableHead>Prix</TableHead>
+              <TableHead>Durée</TableHead>
               <TableHead><span className="sr-only">Actions</span></TableHead>
             </TableRow>
           </TableHeader>
@@ -133,7 +133,7 @@ export default function AdminServicesPage() {
             {services.map(service => (
               <TableRow key={service.id}>
                 <TableCell className="font-medium">{service.name}</TableCell>
-                <TableCell>${service.price.toFixed(2)}</TableCell>
+                <TableCell>{service.price.toFixed(2)} €</TableCell>
                 <TableCell>{service.duration} min</TableCell>
                 <TableCell className="text-right">
                    <DropdownMenu>
@@ -145,8 +145,8 @@ export default function AdminServicesPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => openEditDialog(service)}>Edit</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive" onClick={() => handleDeleteService(service.id)}>Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => openEditDialog(service)}>Modifier</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive" onClick={() => handleDeleteService(service.id)}>Supprimer</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                 </TableCell>

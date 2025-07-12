@@ -63,7 +63,7 @@ export default function Home() {
                     <CardTitle className="font-headline">{service.name}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-2xl font-bold">${service.price.toFixed(2)}</p>
+                    <p className="text-2xl font-bold">{service.price.toFixed(2)} €</p>
                     <p className="text-sm text-muted-foreground">{service.duration} minutes</p>
                   </CardContent>
                 </Card>
@@ -115,7 +115,7 @@ export default function Home() {
             <div className="mx-auto w-full max-w-sm space-y-4">
               <div className="flex items-center justify-center gap-4">
                 <MapPin className="h-5 w-5 text-primary" />
-                <span className="text-foreground">123 Classic Cut, Styleburg, 45678</span>
+                <span className="text-foreground">123 Rue de la Coupe, Styleburg, 45678</span>
               </div>
               <div className="flex items-center justify-center gap-4">
                 <Phone className="h-5 w-5 text-primary" />

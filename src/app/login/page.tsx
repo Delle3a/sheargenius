@@ -40,30 +40,30 @@ export default function LoginPage() {
     <div className="container flex items-center justify-center min-h-[calc(100vh-10rem)] py-12">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl font-headline">Login</CardTitle>
+          <CardTitle className="text-2xl font-headline">Connexion</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account. For this demo, you can log in as a customer, barber, or admin.
+            Entrez votre e-mail ci-dessous pour vous connecter à votre compte. Pour cette démo, vous pouvez vous connecter en tant que client, coiffeur ou administrateur.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">E-mail</Label>
             <Input id="email" type="email" placeholder="m@example.com" defaultValue="demo@example.com" disabled />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Mot de passe</Label>
             <Input id="password" type="password" defaultValue="password" disabled />
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <Button className="w-full" onClick={() => handleLogin('customer')}>
-            Login as Customer
+            Se connecter en tant que Client
           </Button>
            <Button className="w-full" variant="secondary" onClick={() => handleLogin('barber')}>
-            Login as Barber
+            Se connecter en tant que Coiffeur
           </Button>
           <Button className="w-full" variant="outline" onClick={() => handleLogin('admin')}>
-            Login as Admin
+            Se connecter en tant qu'Admin
           </Button>
         </CardFooter>
       </Card>

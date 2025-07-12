@@ -31,23 +31,23 @@ export default function AdminLayout({
   if (!isAdmin) {
     return (
       <div className="container flex items-center justify-center h-screen">
-        <p>Checking credentials...</p>
+        <p>Vérification des informations d'identification...</p>
       </div>
     );
   }
   
   const navItems = [
-    { href: "/admin", label: "Appointments", icon: Calendar },
+    { href: "/admin", label: "Rendez-vous", icon: Calendar },
     { href: "/admin/services", label: "Services", icon: Scissors },
-    { href: "/admin/barbers", label: "Barbers", icon: Users },
-    { href: "/admin/profile", label: "My Profile", icon: User },
+    { href: "/admin/barbers", label: "Coiffeurs", icon: Users },
+    { href: "/admin/profile", label: "Mon Profil", icon: User },
   ];
 
   return (
     <div className="container mx-auto py-10">
       <div className="grid md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr] gap-10">
         <aside>
-          <h2 className="text-2xl font-bold font-headline mb-4">Admin Panel</h2>
+          <h2 className="text-2xl font-bold font-headline mb-4">Panneau d'administration</h2>
           <nav className="flex flex-col gap-2">
             {navItems.map(item => (
               <Button

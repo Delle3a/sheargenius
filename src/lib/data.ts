@@ -26,23 +26,23 @@ export interface Booking {
 }
 
 export const services: Service[] = [
-  { id: '1', name: 'Classic Haircut', price: 30, duration: 30 },
-  { id: '2', name: 'Beard Trim', price: 20, duration: 15 },
-  { id: '3', name: 'Hot Towel Shave', price: 45, duration: 45 },
-  { id: '4', name: 'The Full Works', price: 65, duration: 60 },
+  { id: '1', name: 'Coupe Classique', price: 30, duration: 30 },
+  { id: '2', name: 'Taille de la barbe', price: 20, duration: 15 },
+  { id: '3', name: 'Rasage à la serviette chaude', price: 45, duration: 45 },
+  { id: '4', name: 'Le Grand Jeu', price: 65, duration: 60 },
 ];
 
 export const barbers: Barber[] = [
-  { id: '1', name: 'Alex Johnson', specialty: 'Classic Cuts', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: true },
-  { id: '2', name: 'Maria Garcia', specialty: 'Modern Styles', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: true },
-  { id: '3', name: 'Sam Chen', specialty: 'Fades & Shaves', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: false },
-  { id: '4', name: 'James "Blade" Miller', specialty: 'Beard Master', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: true },
+  { id: '1', name: 'Alex Johnson', specialty: 'Coupes Classiques', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: true },
+  { id: '2', name: 'Maria Garcia', specialty: 'Styles Modernes', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: true },
+  { id: '3', name: 'Sam Chen', specialty: 'Dégradés et Rasages', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: false },
+  { id: '4', name: 'James "La Lame" Miller', specialty: 'Maître Barbier', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: true },
 ];
 
 export const users: User[] = [
-  { id: '1', name: 'John Doe', email: 'customer@test.com', role: 'customer' },
+  { id: '1', name: 'Jean Dupont', email: 'client@test.com', role: 'customer' },
   { id: '2', name: 'Admin', email: 'admin@test.com', role: 'admin' },
-  { id: '3', name: 'Sam Chen', email: 'barber@test.com', role: 'barber'}, // This user is also a barber
+  { id: '3', name: 'Sam Chen', email: 'coiffeur@test.com', role: 'barber'}, // This user is also a barber
 ];
 
 export let bookings: Booking[] = [
@@ -84,12 +84,12 @@ export let bookings: Booking[] = [
   },
 ];
 
-export const availableTimeSlots: { [key: string]: string[] } = {
-  '0': [], // Sunday
-  '1': ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'], // Monday
-  '2': ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'], // Tuesday
-  '3': ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'], // Wednesday
-  '4': ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'], // Thursday
-  '5': ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00'], // Friday
-  '6': ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00'], // Saturday
+export const availableTimeSlots: { [key: number]: string[] } = {
+  0: [], // Dimanche
+  1: ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'], // Lundi
+  2: ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'], // Mardi
+  3: ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'], // Mercredi
+  4: ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'], // Jeudi
+  5: ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00'], // Vendredi
+  6: ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00'], // Samedi
 };

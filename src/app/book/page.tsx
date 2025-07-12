@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -18,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { services, barbers, availableTimeSlots, bookings } from "@/lib/data";
 import type { Booking } from "@/lib/data";
 import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { CheckCircle } from "lucide-react";
 
 export default function BookAppointmentPage() {
@@ -40,8 +40,8 @@ export default function BookAppointmentPage() {
   const handleBooking = () => {
     if (!date || !selectedService || !selectedBarber || !selectedTime || !user) {
       toast({
-        title: "Incomplete Information",
-        description: "Please complete all previous steps.",
+        title: "Informations incomplètes",
+        description: "Veuillez compléter toutes les étapes précédentes.",
         variant: "destructive",
       });
       return;
@@ -52,8 +52,8 @@ export default function BookAppointmentPage() {
       const availableBarbers = barbers.filter(b => b.isAvailable);
       if (availableBarbers.length === 0) {
         toast({
-          title: "No Barbers Available",
-          description: "Sorry, there are no barbers available at this moment. Please check back later.",
+          title: "Aucun coiffeur disponible",
+          description: "Désolé, aucun coiffeur n'est disponible pour le moment. Veuillez réessayer plus tard.",
           variant: "destructive",
         });
         return;
@@ -76,8 +76,8 @@ export default function BookAppointmentPage() {
     bookings.push(newBooking);
     
     toast({
-      title: "Booking Confirmed!",
-      description: `Your appointment is set for ${format(date, 'MMMM do')} at ${selectedTime}.`,
+      title: "Réservation confirmée !",
+      description: `Votre rendez-vous est fixé pour le ${format(date, 'd MMMM yyyy', { locale: fr })} à ${selectedTime}.`,
     });
     
     setStep(4);
@@ -102,7 +102,7 @@ export default function BookAppointmentPage() {
   if (!isAuthenticated) {
     return (
        <div className="container py-12 text-center">
-         <p>Redirecting to login...</p>
+         <p>Redirection vers la page de connexion...</p>
        </div>
     );
   }
@@ -113,33 +113,33 @@ export default function BookAppointmentPage() {
         {step === 1 && (
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline text-2xl">Step 1: Choose Your Service</CardTitle>
-              <CardDescription>Select the service and barber you'd like to book.</CardDescription>
+              <CardTitle className="font-headline text-2xl">Étape 1 : Choisissez votre service</CardTitle>
+              <CardDescription>Sélectionnez le service et le coiffeur que vous souhaitez réserver.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
                   <label className="text-sm font-medium">Service</label>
                   <Select onValueChange={setSelectedService} value={selectedService}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a service" />
+                      <SelectValue placeholder="Sélectionnez un service" />
                     </SelectTrigger>
                     <SelectContent>
                       {services.map((service) => (
                         <SelectItem key={service.id} value={service.id}>
-                          {service.name} - ${service.price.toFixed(2)}
+                          {service.name} - {service.price.toFixed(2)} €
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
               </div>
               <div className="space-y-2">
-                  <label className="text-sm font-medium">Barber</label>
+                  <label className="text-sm font-medium">Coiffeur</label>
                   <Select onValueChange={setSelectedBarber} value={selectedBarber}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a barber" />
+                      <SelectValue placeholder="Sélectionnez un coiffeur" />
                     </SelectTrigger>
                     <SelectContent>
-                       <SelectItem value="any">Any Available</SelectItem>
+                       <SelectItem value="any">N'importe quel coiffeur disponible</SelectItem>
                       {availableBarbers.map((barber) => (
                         <SelectItem key={barber.id} value={barber.id}>
                           {barber.name}
@@ -150,7 +150,7 @@ export default function BookAppointmentPage() {
               </div>
               <div className="flex justify-end">
                 <Button onClick={() => setStep(2)} disabled={!selectedService || !selectedBarber}>
-                  Next
+                  Suivant
                 </Button>
               </div>
             </CardContent>
@@ -160,8 +160,8 @@ export default function BookAppointmentPage() {
         {step === 2 && (
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline text-2xl">Step 2: Select Date & Time</CardTitle>
-               <CardDescription>Choose a date and time that works for you.</CardDescription>
+              <CardTitle className="font-headline text-2xl">Étape 2 : Sélectionnez la date et l'heure</CardTitle>
+               <CardDescription>Choisissez une date et une heure qui vous conviennent.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-center">
@@ -171,6 +171,7 @@ export default function BookAppointmentPage() {
                   onSelect={setDate}
                   className="rounded-md border p-0"
                   disabled={(day) => day < new Date(new Date().setDate(new Date().getDate() - 1)) || day.getDay() === 0 }
+                  locale={fr}
                 />
               </div>
               {date && (
@@ -187,8 +188,8 @@ export default function BookAppointmentPage() {
                 </div>
               )}
                <div className="flex justify-between pt-4">
-                <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
-                <Button onClick={() => setStep(3)} disabled={!date || !selectedTime}>Next</Button>
+                <Button variant="outline" onClick={() => setStep(1)}>Précédent</Button>
+                <Button onClick={() => setStep(3)} disabled={!date || !selectedTime}>Suivant</Button>
               </div>
             </CardContent>
           </Card>
@@ -197,19 +198,19 @@ export default function BookAppointmentPage() {
         {step === 3 && (
             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline text-2xl">Step 3: Confirm Your Appointment</CardTitle>
-                    <CardDescription>Please review your appointment details below.</CardDescription>
+                    <CardTitle className="font-headline text-2xl">Étape 3 : Confirmez votre rendez-vous</CardTitle>
+                    <CardDescription>Veuillez vérifier les détails de votre rendez-vous ci-dessous.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-2 p-4 border rounded-md bg-muted/50">
-                        <p><strong>Service:</strong> {serviceDetails?.name}</p>
-                        <p><strong>Barber:</strong> {selectedBarber === 'any' ? 'Any Available' : barberDetails?.name}</p>
-                        <p><strong>Date:</strong> {date ? format(date, "EEEE, MMMM d, yyyy") : 'Not selected'}</p>
-                        <p><strong>Time:</strong> {selectedTime || 'Not selected'}</p>
+                        <p><strong>Service :</strong> {serviceDetails?.name}</p>
+                        <p><strong>Coiffeur :</strong> {selectedBarber === 'any' ? 'N\'importe quel coiffeur disponible' : barberDetails?.name}</p>
+                        <p><strong>Date :</strong> {date ? format(date, "EEEE d MMMM yyyy", { locale: fr }) : 'Non sélectionnée'}</p>
+                        <p><strong>Heure :</strong> {selectedTime || 'Non sélectionnée'}</p>
                     </div>
                      <div className="flex justify-between">
-                        <Button variant="outline" onClick={() => setStep(2)}>Back</Button>
-                        <Button onClick={handleBooking}>Confirm Booking</Button>
+                        <Button variant="outline" onClick={() => setStep(2)}>Précédent</Button>
+                        <Button onClick={handleBooking}>Confirmer la réservation</Button>
                     </div>
                 </CardContent>
             </Card>
@@ -219,11 +220,11 @@ export default function BookAppointmentPage() {
             <Card>
                 <CardHeader className="items-center text-center">
                     <CheckCircle className="w-16 h-16 text-green-500" />
-                    <CardTitle className="font-headline text-2xl">Thank you!</CardTitle>
-                    <CardDescription>Your appointment is confirmed.</CardDescription>
+                    <CardTitle className="font-headline text-2xl">Merci !</CardTitle>
+                    <CardDescription>Votre rendez-vous est confirmé.</CardDescription>
                 </CardHeader>
                 <CardContent className="text-center">
-                     <Button onClick={resetBooking}>Book Another Appointment</Button>
+                     <Button onClick={resetBooking}>Réserver un autre rendez-vous</Button>
                 </CardContent>
             </Card>
         )}

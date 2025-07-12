@@ -27,6 +27,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+
+const statusTranslations: { [key in Booking['status']]: string } = {
+  upcoming: 'à venir',
+  completed: 'terminé',
+  cancelled: 'annulé'
+};
 
 export default function AdminAppointmentsPage() {
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
@@ -43,16 +50,16 @@ export default function AdminAppointmentsPage() {
   
   return (
     <div>
-      <h1 className="text-3xl font-bold font-headline mb-6">All Appointments</h1>
+      <h1 className="text-3xl font-bold font-headline mb-6">Tous les rendez-vous</h1>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Customer</TableHead>
+              <TableHead>Client</TableHead>
               <TableHead>Service</TableHead>
-              <TableHead>Barber</TableHead>
-              <TableHead>Date & Time</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Coiffeur</TableHead>
+              <TableHead>Date et heure</TableHead>
+              <TableHead>Statut</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -69,11 +76,11 @@ export default function AdminAppointmentsPage() {
                   <TableCell>{service?.name}</TableCell>
                   <TableCell>{barber?.name}</TableCell>
                   <TableCell>
-                    {format(new Date(booking.date), "MMM d, yyyy")} - {booking.time}
+                    {format(new Date(booking.date), "d MMM yyyy", { locale: fr })} - {booking.time}
                   </TableCell>
                   <TableCell>
                      <Badge variant={booking.status === "upcoming" ? "default" : "secondary"} className={booking.status === "cancelled" ? "bg-destructive text-destructive-foreground" : ""}>
-                       {booking.status}
+                       {statusTranslations[booking.status]}
                      </Badge>
                   </TableCell>
                   <TableCell>
@@ -87,10 +94,10 @@ export default function AdminAppointmentsPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem onClick={() => handleStatusChange(booking.id, 'completed')}>
-                          Mark as Completed
+                          Marquer comme terminé
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleStatusChange(booking.id, 'cancelled')}>
-                          Cancel
+                          Annuler
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

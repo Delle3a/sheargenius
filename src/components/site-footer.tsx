@@ -12,13 +12,13 @@ export function SiteFooter() {
           </div>
           <div className="flex gap-4 text-sm text-muted-foreground">
             <Link href="/#services" className="hover:text-foreground">Services</Link>
-            <Link href="/#barbers" className="hover:text-foreground">Barbers</Link>
-            <Link href="/book" className="hover:text-foreground">Book Now</Link>
+            <Link href="/#barbers" className="hover:text-foreground">Coiffeurs</Link>
+            <Link href="/book" className="hover:text-foreground">Réserver</Link>
           </div>
         </div>
         <div className="mt-6 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} Shear Genius. All rights reserved.</p>
-          <p className="mt-1">123 Classic Cut, Styleburg, 45678</p>
+          <p>© {new Date().getFullYear()} Shear Genius. Tous droits réservés.</p>
+          <p className="mt-1">123 Rue de la Coupe, Styleburg, 45678</p>
         </div>
       </div>
     </footer>

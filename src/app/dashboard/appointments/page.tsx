@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import {
@@ -30,6 +31,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+
+const statusTranslations: { [key in Booking['status']]: string } = {
+  upcoming: 'à venir',
+  completed: 'terminé',
+  cancelled: 'annulé'
+};
+
 
 export default function AppointmentsPage() {
   const { user, isAuthenticated } = useAuth();
@@ -54,8 +62,8 @@ export default function AppointmentsPage() {
       )
     );
     toast({
-      title: "Appointment Cancelled",
-      description: "Your appointment has been successfully cancelled.",
+      title: "Rendez-vous annulé",
+      description: "Votre rendez-vous a été annulé avec succès.",
     });
   };
 
@@ -70,7 +78,7 @@ export default function AppointmentsPage() {
     // This will be handled by the layout, but as a fallback:
     return (
       <div className="container py-12 text-center">
-        <p>Redirecting to login...</p>
+        <p>Redirection vers la page de connexion...</p>
       </div>
     );
   }
@@ -85,35 +93,35 @@ export default function AppointmentsPage() {
           <CardTitle className="font-headline flex justify-between items-start">
             <span>{service?.name || "Service"}</span>
              <Badge variant={booking.status === "upcoming" ? "default" : "secondary"} className={booking.status === "cancelled" ? "bg-destructive text-destructive-foreground" : ""}>
-               {booking.status}
+               {statusTranslations[booking.status]}
              </Badge>
           </CardTitle>
           <CardDescription>
-            {format(new Date(booking.date), "EEEE, MMMM d, yyyy")} at {booking.time}
+            {format(new Date(booking.date), "EEEE d MMMM yyyy", { locale: fr })} à {booking.time}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <p>
-            with <strong>{barber?.name || "Barber"}</strong>
+            avec <strong>{barber?.name || "Coiffeur"}</strong>
           </p>
         </CardContent>
         {booking.status === "upcoming" && (
           <CardFooter>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                 <Button variant="destructive">Cancel</Button>
+                 <Button variant="destructive">Annuler</Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogTitle>Êtes-vous sûr(e) ?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently cancel your appointment.
+                    Cette action est irréversible. Cela annulera définitivement votre rendez-vous.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Back</AlertDialogCancel>
+                  <AlertDialogCancel>Retour</AlertDialogCancel>
                   <AlertDialogAction onClick={() => handleCancel(booking.id)}>
-                    Yes, Cancel
+                    Oui, annuler
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -126,9 +134,9 @@ export default function AppointmentsPage() {
   
   const NoAppointments = () => (
     <div className="text-center py-16 border-2 border-dashed rounded-lg">
-      <h2 className="text-xl font-medium text-muted-foreground">No appointments here.</h2>
+      <h2 className="text-xl font-medium text-muted-foreground">Aucun rendez-vous ici.</h2>
       <Button asChild className="mt-4">
-        <Link href="/book">Book Your First Visit</Link>
+        <Link href="/book">Réservez votre première visite</Link>
       </Button>
     </div>
   )
@@ -136,13 +144,13 @@ export default function AppointmentsPage() {
   return (
     <div>
        <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline mb-8">
-        My Appointments
+        Mes rendez-vous
       </h1>
 
       <Tabs defaultValue="upcoming">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-          <TabsTrigger value="past">History</TabsTrigger>
+          <TabsTrigger value="upcoming">À venir</TabsTrigger>
+          <TabsTrigger value="past">Historique</TabsTrigger>
         </TabsList>
         <TabsContent value="upcoming" className="mt-6">
           {upcomingBookings.length > 0 ? (
@@ -164,7 +172,7 @@ export default function AppointmentsPage() {
             </div>
            ) : (
             <div className="text-center py-16 border-2 border-dashed rounded-lg">
-              <h2 className="text-xl font-medium text-muted-foreground">No appointment history.</h2>
+              <h2 className="text-xl font-medium text-muted-foreground">Aucun historique de rendez-vous.</h2>
             </div>
           )}
         </TabsContent>

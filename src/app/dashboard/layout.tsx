@@ -27,21 +27,21 @@ export default function DashboardLayout({
   if (!user) {
     return (
       <div className="container flex items-center justify-center h-screen">
-        <p>Checking credentials...</p>
+        <p>Vérification des informations d'identification...</p>
       </div>
     );
   }
   
   const navItems = [
-    { href: "/dashboard/appointments", label: "My Appointments", icon: Calendar },
-    { href: "/dashboard/profile", label: "My Profile", icon: User },
+    { href: "/dashboard/appointments", label: "Mes rendez-vous", icon: Calendar },
+    { href: "/dashboard/profile", label: "Mon Profil", icon: User },
   ];
 
   return (
     <div className="container mx-auto py-10">
       <div className="grid md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr] gap-10">
         <aside>
-          <h2 className="text-2xl font-bold font-headline mb-4">My Account</h2>
+          <h2 className="text-2xl font-bold font-headline mb-4">Mon Compte</h2>
           <nav className="flex flex-col gap-2">
             {navItems.map(item => (
               <Button

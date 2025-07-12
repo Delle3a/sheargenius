@@ -1,10 +1,13 @@
-
 import type { Metadata } from "next";
 import { AuthProvider } from "@/context/auth-context";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
+import { fr } from "date-fns/locale";
+import { setDefaultOptions } from "date-fns";
+
+setDefaultOptions({ locale: fr });
 
 export const metadata: Metadata = {
   title: "Shear Genius",

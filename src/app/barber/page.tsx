@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,6 +28,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+const statusTranslations: { [key in Booking['status']]: string } = {
+  upcoming: 'à venir',
+  completed: 'terminé',
+  cancelled: 'annulé'
+};
+
 
 export default function BarberSchedulePage() {
   const { user } = useAuth();
@@ -82,10 +90,10 @@ export default function BarberSchedulePage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Customer</TableHead>
+              <TableHead>Client</TableHead>
               <TableHead>Service</TableHead>
-              <TableHead>Date & Time</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Date et heure</TableHead>
+              <TableHead>Statut</TableHead>
               {isUpcoming && <TableHead><span className="sr-only">Actions</span></TableHead>}
             </TableRow>
           </TableHeader>
@@ -99,11 +107,11 @@ export default function BarberSchedulePage() {
                     <TableCell className="font-medium">{customer?.name || `User ID: ${booking.userId}`}</TableCell>
                     <TableCell>{service?.name}</TableCell>
                     <TableCell>
-                      {format(new Date(booking.date), "MMM d, yyyy")} - {booking.time}
+                      {format(new Date(booking.date), "d MMM yyyy", { locale: fr })} - {booking.time}
                     </TableCell>
                     <TableCell>
                        <Badge variant={booking.status === 'upcoming' ? 'default' : booking.status === 'completed' ? 'secondary' : 'destructive'}>
-                         {booking.status}
+                         {statusTranslations[booking.status]}
                        </Badge>
                     </TableCell>
                      {isUpcoming && (
@@ -118,10 +126,10 @@ export default function BarberSchedulePage() {
                               <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                 <DropdownMenuItem onClick={() => handleStatusChange(booking.id, 'completed')}>
-                                  Mark as Completed
+                                  Marquer comme terminé
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleStatusChange(booking.id, 'cancelled')}>
-                                  Cancel
+                                  Annuler
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -133,7 +141,7 @@ export default function BarberSchedulePage() {
             ) : (
               <TableRow>
                 <TableCell colSpan={isUpcoming ? 5 : 4} className="h-24 text-center">
-                  No appointments in this category.
+                  Aucun rendez-vous dans cette catégorie.
                 </TableCell>
               </TableRow>
             )}
@@ -145,7 +153,7 @@ export default function BarberSchedulePage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-start">
-         <h1 className="text-3xl font-bold font-headline">My Schedule</h1>
+         <h1 className="text-3xl font-bold font-headline">Mon Horaire</h1>
          {barberDetails && (
             <Card>
                 <CardContent className="pt-6">
@@ -156,7 +164,7 @@ export default function BarberSchedulePage() {
                             onCheckedChange={handleAvailabilityChange}
                         />
                         <Label htmlFor="availability" className="font-medium">
-                            {barberDetails.isAvailable ? "Available for Bookings" : "Not Available"}
+                            {barberDetails.isAvailable ? "Disponible pour les réservations" : "Indisponible"}
                         </Label>
                     </div>
                 </CardContent>
@@ -166,8 +174,8 @@ export default function BarberSchedulePage() {
 
       <Tabs defaultValue="upcoming">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
+          <TabsTrigger value="upcoming">À venir</TabsTrigger>
+          <TabsTrigger value="history">Historique</TabsTrigger>
         </TabsList>
         <TabsContent value="upcoming">
             <AppointmentsTable bookings={upcomingBookings} isUpcoming={true} />
