@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/context/auth-context";
-import { bookings, services, users } from "@/lib/data";
-import type { Booking } from "@/lib/data";
+import { bookings, services, users, barbers } from "@/lib/data";
+import type { Booking, Barber } from "@/lib/data";
 import {
   Table,
   TableBody,
@@ -14,23 +14,71 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function BarberSchedulePage() {
   const { user } = useAuth();
   const [myBookings, setMyBookings] = useState<Booking[]>([]);
+  const [barberDetails, setBarberDetails] = useState<Barber | null>(null);
 
   useEffect(() => {
     if (user) {
-      // Filter bookings for the currently logged-in barber
-      const barberBookings = bookings.filter(b => b.barberId === user.id && b.status === 'upcoming');
+      const barberData = barbers.find(b => b.id === user.id) ?? null;
+      setBarberDetails(barberData);
+      
+      const barberBookings = bookings.filter(b => b.barberId === user.id);
       setMyBookings(barberBookings);
     }
   }, [user]);
+  
+  const handleAvailabilityChange = (isAvailable: boolean) => {
+    if (barberDetails) {
+        const updatedBarber = { ...barberDetails, isAvailable };
+        setBarberDetails(updatedBarber);
 
-  return (
-    <div>
-      <h1 className="text-3xl font-bold font-headline mb-6">My Upcoming Appointments</h1>
-      <div className="rounded-md border">
+        // Update the global barbers array (simulation for no DB)
+        const barberIndex = barbers.findIndex(b => b.id === barberDetails.id);
+        if (barberIndex !== -1) {
+            barbers[barberIndex].isAvailable = isAvailable;
+        }
+    }
+  };
+  
+  const handleStatusChange = (bookingId: string, status: Booking['status']) => {
+    const updatedBookings = myBookings.map(b => b.id === bookingId ? { ...b, status } : b);
+    setMyBookings(updatedBookings);
+    
+    const bookingIndex = bookings.findIndex(b => b.id === bookingId);
+    if (bookingIndex > -1) {
+        bookings[bookingIndex].status = status;
+    }
+  };
+
+  const { upcomingBookings, pastBookings } = useMemo(() => {
+    const upcoming = myBookings
+      .filter((b) => b.status === 'upcoming')
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const past = myBookings
+      .filter((b) => b.status !== 'upcoming')
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return { upcomingBookings: upcoming, pastBookings: past };
+  }, [myBookings]);
+
+
+  const AppointmentsTable = ({ bookings, isUpcoming }: { bookings: Booking[], isUpcoming: boolean }) => (
+     <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -38,11 +86,12 @@ export default function BarberSchedulePage() {
               <TableHead>Service</TableHead>
               <TableHead>Date & Time</TableHead>
               <TableHead>Status</TableHead>
+              {isUpcoming && <TableHead><span className="sr-only">Actions</span></TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {myBookings.length > 0 ? (
-              myBookings.map((booking) => {
+            {bookings.length > 0 ? (
+              bookings.map((booking) => {
                 const customer = users.find((u) => u.id === booking.userId);
                 const service = services.find((s) => s.id === booking.serviceId);
                 return (
@@ -53,23 +102,80 @@ export default function BarberSchedulePage() {
                       {format(new Date(booking.date), "MMM d, yyyy")} - {booking.time}
                     </TableCell>
                     <TableCell>
-                       <Badge variant={"default"}>
+                       <Badge variant={booking.status === 'upcoming' ? 'default' : booking.status === 'completed' ? 'secondary' : 'destructive'}>
                          {booking.status}
                        </Badge>
                     </TableCell>
+                     {isUpcoming && (
+                        <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button aria-haspopup="true" size="icon" variant="ghost">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                  <span className="sr-only">Toggle menu</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuItem onClick={() => handleStatusChange(booking.id, 'completed')}>
+                                  Mark as Completed
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleStatusChange(booking.id, 'cancelled')}>
+                                  Cancel
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                        </TableCell>
+                     )}
                   </TableRow>
                 );
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
-                  You have no upcoming appointments.
+                <TableCell colSpan={isUpcoming ? 5 : 4} className="h-24 text-center">
+                  No appointments in this category.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-start">
+         <h1 className="text-3xl font-bold font-headline">My Schedule</h1>
+         {barberDetails && (
+            <Card>
+                <CardContent className="pt-6">
+                    <div className="flex items-center space-x-2">
+                        <Switch 
+                            id="availability" 
+                            checked={barberDetails.isAvailable} 
+                            onCheckedChange={handleAvailabilityChange}
+                        />
+                        <Label htmlFor="availability" className="font-medium">
+                            {barberDetails.isAvailable ? "Available for Bookings" : "Not Available"}
+                        </Label>
+                    </div>
+                </CardContent>
+            </Card>
+         )}
+      </div>
+
+      <Tabs defaultValue="upcoming">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+          <TabsTrigger value="history">History</TabsTrigger>
+        </TabsList>
+        <TabsContent value="upcoming">
+            <AppointmentsTable bookings={upcomingBookings} isUpcoming={true} />
+        </TabsContent>
+        <TabsContent value="history">
+            <AppointmentsTable bookings={pastBookings} isUpcoming={false} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
