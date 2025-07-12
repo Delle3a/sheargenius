@@ -5,10 +5,21 @@ import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 
 export function HeroActionButton() {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin, isBarber } = useAuth();
 
-  const href = isAuthenticated && isAdmin ? "/admin" : "/book";
-  const text = isAuthenticated && isAdmin ? "Go to Admin Panel" : "Book Now";
+  let href = "/book";
+  let text = "Book Now";
+
+  if (isAuthenticated) {
+    if (isAdmin) {
+      href = "/admin";
+      text = "Go to Admin Panel";
+    } else if (isBarber) {
+      href = "/barber";
+      text = "View My Schedule";
+    }
+  }
+
 
   return (
     <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
