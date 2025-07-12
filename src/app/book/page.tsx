@@ -49,8 +49,15 @@ export default function BookAppointmentPage() {
     
     let barberToBook = selectedBarber;
     if (barberToBook === 'any') {
-      // Randomly assign a barber if 'Any Available' is selected
-      const availableBarbers = barbers;
+      const availableBarbers = barbers.filter(b => b.isAvailable);
+      if (availableBarbers.length === 0) {
+        toast({
+          title: "No Barbers Available",
+          description: "Sorry, there are no barbers available at this moment. Please check back later.",
+          variant: "destructive",
+        });
+        return;
+      }
       const randomIndex = Math.floor(Math.random() * availableBarbers.length);
       barberToBook = availableBarbers[randomIndex].id;
     }
@@ -89,6 +96,8 @@ export default function BookAppointmentPage() {
 
   const serviceDetails = services.find(s => s.id === selectedService);
   const barberDetails = barbers.find(b => b.id === selectedBarber);
+  const availableBarbers = barbers.filter(b => b.isAvailable);
+
 
   if (!isAuthenticated) {
     return (
@@ -131,7 +140,7 @@ export default function BookAppointmentPage() {
                     </SelectTrigger>
                     <SelectContent>
                        <SelectItem value="any">Any Available</SelectItem>
-                      {barbers.map((barber) => (
+                      {availableBarbers.map((barber) => (
                         <SelectItem key={barber.id} value={barber.id}>
                           {barber.name}
                         </SelectItem>

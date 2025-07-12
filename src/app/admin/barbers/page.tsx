@@ -32,6 +32,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function AdminBarbersPage() {
   const [barbers, setBarbers] = useState<Barber[]>(initialBarbers);
@@ -45,6 +48,7 @@ export default function AdminBarbersPage() {
       name: formData.get('name') as string,
       specialty: formData.get('specialty') as string,
       avatarUrl: formData.get('avatarUrl') as string || 'https://placehold.co/100x100.png',
+      isAvailable: formData.get('isAvailable') === 'on',
     };
 
     if (editingBarber) {
@@ -77,11 +81,21 @@ export default function AdminBarbersPage() {
     setIsDialogOpen(true);
   };
 
+  const handleAvailabilityChange = (barberId: string, isAvailable: boolean) => {
+    const updatedBarbers = barbers.map(b =>
+      b.id === barberId ? { ...b, isAvailable } : b
+    );
+    setBarbers(updatedBarbers);
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold font-headline">Manage Barbers</h1>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
+          setIsDialogOpen(isOpen);
+          if (!isOpen) setEditingBarber(null);
+        }}>
           <DialogTrigger asChild>
             <Button onClick={openNewDialog}>
                 <PlusCircle className="mr-2 h-4 w-4" />
@@ -109,6 +123,10 @@ export default function AdminBarbersPage() {
                   <Label htmlFor="avatarUrl" className="text-right">Avatar URL</Label>
                   <Input id="avatarUrl" name="avatarUrl" defaultValue={editingBarber?.avatarUrl} className="col-span-3" />
                 </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="isAvailable" className="text-right">Available</Label>
+                   <Checkbox id="isAvailable" name="isAvailable" defaultChecked={editingBarber?.isAvailable ?? true} className="col-span-3" />
+                </div>
               </div>
               <DialogFooter>
                 <Button type="submit">Save changes</Button>
@@ -124,6 +142,8 @@ export default function AdminBarbersPage() {
             <TableRow>
               <TableHead>Barber</TableHead>
               <TableHead>Specialty</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Available</TableHead>
               <TableHead><span className="sr-only">Actions</span></TableHead>
             </TableRow>
           </TableHeader>
@@ -140,6 +160,17 @@ export default function AdminBarbersPage() {
                   </div>
                 </TableCell>
                 <TableCell>{barber.specialty}</TableCell>
+                <TableCell>
+                  <Badge variant={barber.isAvailable ? "default" : "secondary"}>
+                    {barber.isAvailable ? "Available" : "Unavailable"}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Switch
+                    checked={barber.isAvailable}
+                    onCheckedChange={(checked) => handleAvailabilityChange(barber.id, checked)}
+                  />
+                </TableCell>
                 <TableCell className="text-right">
                    <DropdownMenu>
                       <DropdownMenuTrigger asChild>

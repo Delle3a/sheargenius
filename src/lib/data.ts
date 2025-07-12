@@ -12,6 +12,7 @@ export interface Barber {
   name: string;
   specialty: string;
   avatarUrl: string;
+  isAvailable: boolean;
 }
 
 export interface Booking {
@@ -32,10 +33,10 @@ export const services: Service[] = [
 ];
 
 export const barbers: Barber[] = [
-  { id: '1', name: 'Alex Johnson', specialty: 'Classic Cuts', avatarUrl: 'https://placehold.co/100x100.png' },
-  { id: '2', name: 'Maria Garcia', specialty: 'Modern Styles', avatarUrl: 'https://placehold.co/100x100.png' },
-  { id: '3', name: 'Sam Chen', specialty: 'Fades & Shaves', avatarUrl: 'https://placehold.co/100x100.png' },
-  { id: '4', name: 'James "Blade" Miller', specialty: 'Beard Master', avatarUrl: 'https://placehold.co/100x100.png' },
+  { id: '1', name: 'Alex Johnson', specialty: 'Classic Cuts', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: true },
+  { id: '2', name: 'Maria Garcia', specialty: 'Modern Styles', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: true },
+  { id: '3', name: 'Sam Chen', specialty: 'Fades & Shaves', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: false },
+  { id: '4', name: 'James "Blade" Miller', specialty: 'Beard Master', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: true },
 ];
 
 export const users: User[] = [
@@ -43,7 +44,7 @@ export const users: User[] = [
   { id: '2', name: 'Admin', email: 'admin@test.com', role: 'admin' },
 ];
 
-export const bookings: Booking[] = [
+export let bookings: Booking[] = [
   {
     id: '1',
     userId: '1',
