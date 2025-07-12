@@ -7,7 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Calendar, Scissors, Users } from "lucide-react";
+import { Calendar, Scissors, Users, User } from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -40,6 +40,7 @@ export default function AdminLayout({
     { href: "/admin", label: "Appointments", icon: Calendar },
     { href: "/admin/services", label: "Services", icon: Scissors },
     { href: "/admin/barbers", label: "Barbers", icon: Users },
+    { href: "/admin/profile", label: "My Profile", icon: User },
   ];
 
   return (
