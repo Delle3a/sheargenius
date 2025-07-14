@@ -7,7 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Calendar, Scissors, Users, User } from "lucide-react";
+import { Calendar, Scissors, Users, User, LayoutDashboard } from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -37,7 +37,8 @@ export default function AdminLayout({
   }
   
   const navItems = [
-    { href: "/admin", label: "Rendez-vous", icon: Calendar },
+    { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
+    { href: "/admin/appointments", label: "Rendez-vous", icon: Calendar },
     { href: "/admin/services", label: "Services", icon: Scissors },
     { href: "/admin/barbers", label: "Coiffeurs", icon: Users },
     { href: "/admin/profile", label: "Mon Profil", icon: User },

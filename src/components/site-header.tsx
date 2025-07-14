@@ -41,7 +41,7 @@ export function SiteHeader() {
             )}
             {isAuthenticated && !isAdmin && !isBarber && (
               <Link href="/dashboard/appointments" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-                Mon tableau de bord
+                Mes rendez-vous
               </Link>
             )}
             {isAdmin && (
