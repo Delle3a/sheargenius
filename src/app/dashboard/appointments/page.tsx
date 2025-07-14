@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
-import { bookings as allBookings, services, barbers } from "@/lib/data";
+import { bookings as allBookings, services as staticServices, barbers } from "@/lib/data";
 import type { Booking } from "@/lib/data";
 import {
   Card,
@@ -84,7 +84,7 @@ export default function AppointmentsPage() {
   }
 
   const AppointmentCard = ({ booking }: { booking: Booking }) => {
-    const service = services.find((s) => s.id === booking.serviceId);
+    const service = staticServices.find((s) => s.id === booking.serviceId);
     const barber = barbers.find((b) => b.id === booking.barberId);
 
     return (

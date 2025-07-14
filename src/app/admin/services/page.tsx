@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import { services as initialServices } from '@/lib/data';
+import { useState, useEffect } from 'react';
+import { getServices, addService, updateService, deleteService } from '@/lib/firebase/services';
 import type { Service } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,13 +31,36 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminServicesPage() {
-  const [services, setServices] = useState<Service[]>(initialServices);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const { toast } = useToast();
 
-  const handleSaveService = (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const servicesFromDb = await getServices();
+        setServices(servicesFromDb);
+      } catch (error) {
+        console.error("Error fetching services: ", error);
+        toast({
+            title: "Erreur",
+            description: "Impossible de charger les services.",
+            variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, [toast]);
+
+  const handleSaveService = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const serviceData = {
@@ -46,38 +69,43 @@ export default function AdminServicesPage() {
       duration: Number(formData.get('duration')),
     };
 
-    if (editingService) {
-      // Update existing service
-      const updatedServices = services.map(s =>
-        s.id === editingService.id ? { ...s, ...serviceData } : s
-      );
-      setServices(updatedServices);
-       // In a real app, this would be an API call. Here we mutate the imported array.
-      const serviceIndex = initialServices.findIndex(s => s.id === editingService.id);
-      if (serviceIndex !== -1) {
-        initialServices[serviceIndex] = { ...initialServices[serviceIndex], ...serviceData };
-      }
-    } else {
-      // Add new service
-      const newService: Service = {
-        id: (Date.now()).toString(), // Use a more robust ID in a real app
-        ...serviceData,
-      };
-      setServices([...services, newService]);
-       // In a real app, this would be an API call. Here we mutate the imported array.
-      initialServices.push(newService);
+    try {
+        if (editingService) {
+          await updateService(editingService.id, serviceData);
+          setServices(services.map(s =>
+            s.id === editingService.id ? { ...s, ...serviceData } : s
+          ));
+          toast({ title: "Succès", description: "Service mis à jour." });
+        } else {
+          const newService = await addService(serviceData);
+          setServices([...services, newService]);
+          toast({ title: "Succès", description: "Service ajouté." });
+        }
+        setIsDialogOpen(false);
+        setEditingService(null);
+    } catch(error) {
+        console.error("Error saving service: ", error);
+        toast({
+            title: "Erreur",
+            description: "Impossible d'enregistrer le service.",
+            variant: "destructive",
+        });
     }
-    setIsDialogOpen(false);
-    setEditingService(null);
   };
 
-  const handleDeleteService = (serviceId: string) => {
-    // In a real app, this would be an API call. Here we mutate the imported array.
-    const serviceIndex = initialServices.findIndex(s => s.id === serviceId);
-    if (serviceIndex !== -1) {
-      initialServices.splice(serviceIndex, 1);
+  const handleDeleteService = async (serviceId: string) => {
+    try {
+        await deleteService(serviceId);
+        setServices(services.filter(s => s.id !== serviceId));
+        toast({ title: "Succès", description: "Service supprimé." });
+    } catch (error) {
+        console.error("Error deleting service: ", error);
+        toast({
+            title: "Erreur",
+            description: "Impossible de supprimer le service.",
+            variant: "destructive",
+        });
     }
-    setServices(services.filter(s => s.id !== serviceId));
   };
 
   const openEditDialog = (service: Service) => {
@@ -89,6 +117,10 @@ export default function AdminServicesPage() {
     setEditingService(null);
     setIsDialogOpen(true);
   };
+
+  if (loading) {
+    return <div>Chargement des services...</div>;
+  }
 
   return (
     <div>
@@ -119,7 +151,7 @@ export default function AdminServicesPage() {
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="price" className="text-right">Prix (€)</Label>
-                  <Input id="price" name="price" type="number" defaultValue={editingService?.price} className="col-span-3" required />
+                  <Input id="price" name="price" type="number" step="0.01" defaultValue={editingService?.price} className="col-span-3" required />
                 </div>
                  <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="duration" className="text-right">Durée (min)</Label>

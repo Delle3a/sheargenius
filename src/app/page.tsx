@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { services, barbers } from "@/lib/data";
+import { services as staticServices, barbers } from "@/lib/data";
 import { BarberPole } from "@/components/icons";
 import { Phone, MapPin, Mail } from "lucide-react";
 import { HeroActionButton } from "@/components/hero-action-button";
@@ -54,7 +54,7 @@ export default function Home() {
               </div>
             </div>
             <div className="mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 pt-12">
-              {services.map((service) => (
+              {staticServices.map((service) => (
                 <Card key={service.id} className="text-center">
                   <CardHeader>
                     <div className="mx-auto p-2 bg-primary/20 rounded-full w-fit">

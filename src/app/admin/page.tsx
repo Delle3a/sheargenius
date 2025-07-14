@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { bookings, services, users, barbers } from "@/lib/data"
+import { bookings, services as staticServices, users, barbers } from "@/lib/data"
 import { DollarSign, Users, Calendar, Scissors } from "lucide-react"
 import {
   ChartContainer,
@@ -40,7 +40,7 @@ export default function AdminDashboardPage() {
   const totalRevenue = bookings
     .filter(b => b.status === 'completed')
     .reduce((acc, booking) => {
-      const service = services.find(s => s.id === booking.serviceId);
+      const service = staticServices.find(s => s.id === booking.serviceId);
       return acc + (service?.price || 0);
     }, 0);
 
@@ -113,7 +113,7 @@ export default function AdminDashboardPage() {
             <Scissors className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{services.length}</div>
+            <div className="text-2xl font-bold">{staticServices.length}</div>
             <p className="text-xs text-muted-foreground">
               Total des services disponibles
             </p>

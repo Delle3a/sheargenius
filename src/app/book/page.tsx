@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { services, barbers, availableTimeSlots, bookings } from "@/lib/data";
+import { services as staticServices, barbers, availableTimeSlots, bookings } from "@/lib/data";
 import type { Booking } from "@/lib/data";
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -128,7 +128,7 @@ export default function BookAppointmentPage() {
   }, [date, selectedBarber, allTimesForDay]);
 
 
-  const serviceDetails = services.find(s => s.id === selectedService);
+  const serviceDetails = staticServices.find(s => s.id === selectedService);
   const barberDetails = barbers.find(b => b.id === selectedBarber);
   const availableBarbersForSelect = barbers.filter(b => b.isAvailable);
 
@@ -158,7 +158,7 @@ export default function BookAppointmentPage() {
                       <SelectValue placeholder="Sélectionnez un service" />
                     </SelectTrigger>
                     <SelectContent>
-                      {services.map((service) => (
+                      {staticServices.map((service) => (
                         <SelectItem key={service.id} value={service.id}>
                           {service.name} - {service.price.toFixed(2)} €
                         </SelectItem>

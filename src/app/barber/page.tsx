@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/context/auth-context";
-import { bookings, services, users, barbers } from "@/lib/data";
+import { bookings, services as staticServices, users, barbers } from "@/lib/data";
 import type { Booking, Barber } from "@/lib/data";
 import {
   Table,
@@ -101,7 +101,7 @@ export default function BarberSchedulePage() {
             {bookings.length > 0 ? (
               bookings.map((booking) => {
                 const customer = users.find((u) => u.id === booking.userId);
-                const service = services.find((s) => s.id === booking.serviceId);
+                const service = staticServices.find((s) => s.id === booking.serviceId);
                 return (
                   <TableRow key={booking.id}>
                     <TableCell className="font-medium">{customer?.name || `User ID: ${booking.userId}`}</TableCell>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
   bookings as initialBookings,
-  services,
+  services as staticServices,
   barbers,
   users,
 } from "@/lib/data";
@@ -68,7 +68,7 @@ export default function AdminAppointmentsPage() {
           <TableBody>
             {bookings.map((booking) => {
               const user = users.find((u) => u.id === booking.userId);
-              const service = services.find((s) => s.id === booking.serviceId);
+              const service = staticServices.find((s) => s.id === booking.serviceId);
               const barber = barbers.find((b) => b.id === booking.barberId);
               return (
                 <TableRow key={booking.id}>
