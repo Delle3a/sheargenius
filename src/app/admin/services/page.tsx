@@ -180,8 +180,8 @@ export default function AdminServicesPage() {
             {services.map(service => (
               <TableRow key={service.id}>
                 <TableCell className="font-medium">{service.name}</TableCell>
-                <TableCell>{service.price.toFixed(2)} €</TableCell>
-                <TableCell>{service.duration} min</TableCell>
+                <TableCell>{(typeof service.price === 'number' ? service.price : 0).toFixed(2)} €</TableCell>
+                <TableCell>{service.duration || 0} min</TableCell>
                 <TableCell className="text-right">
                    <DropdownMenu>
                       <DropdownMenuTrigger asChild>
