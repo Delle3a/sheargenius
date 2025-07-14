@@ -25,7 +25,7 @@ export interface Booking {
   status: 'upcoming' | 'completed' | 'cancelled';
 }
 
-export const services: Service[] = [
+export let services: Service[] = [
   { id: '1', name: 'Coupe Classique', price: 30, duration: 30 },
   { id: '2', name: 'Taille de la barbe', price: 20, duration: 15 },
   { id: '3', name: 'Rasage à la serviette chaude', price: 45, duration: 45 },

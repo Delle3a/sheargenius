@@ -52,13 +52,20 @@ export default function AdminServicesPage() {
         s.id === editingService.id ? { ...s, ...serviceData } : s
       );
       setServices(updatedServices);
+       // In a real app, this would be an API call. Here we mutate the imported array.
+      const serviceIndex = initialServices.findIndex(s => s.id === editingService.id);
+      if (serviceIndex !== -1) {
+        initialServices[serviceIndex] = { ...initialServices[serviceIndex], ...serviceData };
+      }
     } else {
       // Add new service
       const newService: Service = {
-        id: (services.length + 1).toString(),
+        id: (Date.now()).toString(), // Use a more robust ID in a real app
         ...serviceData,
       };
       setServices([...services, newService]);
+       // In a real app, this would be an API call. Here we mutate the imported array.
+      initialServices.push(newService);
     }
     setIsDialogOpen(false);
     setEditingService(null);
@@ -66,6 +73,11 @@ export default function AdminServicesPage() {
 
   const handleDeleteService = (serviceId: string) => {
     setServices(services.filter(s => s.id !== serviceId));
+    // In a real app, this would be an API call. Here we mutate the imported array.
+    const serviceIndex = initialServices.findIndex(s => s.id === serviceId);
+    if (serviceIndex !== -1) {
+      initialServices.splice(serviceIndex, 1);
+    }
   };
 
   const openEditDialog = (service: Service) => {
@@ -82,7 +94,10 @@ export default function AdminServicesPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold font-headline">Gérer les services</h1>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
+          setIsDialogOpen(isOpen);
+          if (!isOpen) setEditingService(null);
+        }}>
           <DialogTrigger asChild>
             <Button onClick={openNewDialog}>
                 <PlusCircle className="mr-2 h-4 w-4" />
