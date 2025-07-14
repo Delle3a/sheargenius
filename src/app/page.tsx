@@ -32,7 +32,7 @@ export default function Home() {
               </div>
               <Image
                 src="https://placehold.co/600x400.png"
-                data-ai-hint="barbershop interior"
+                data-ai-hint="stylish barbershop"
                 width="600"
                 height="400"
                 alt="Hero"
@@ -88,7 +88,7 @@ export default function Home() {
                 <Card key={barber.id} className="text-center overflow-hidden">
                    <div className="bg-muted h-32 flex items-end justify-center">
                       <Avatar className="w-24 h-24 border-4 border-background -mb-12">
-                        <AvatarImage src={barber.avatarUrl} alt={barber.name} />
+                        <AvatarImage src={barber.avatarUrl} alt={barber.name} data-ai-hint={barber.id === '2' ? 'female barber' : 'male barber'} />
                         <AvatarFallback>{barber.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                    </div>
