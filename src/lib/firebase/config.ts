@@ -5,12 +5,13 @@ import { initializeApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDxjH-4J2qZ_ePnYs1CIWOJZ0we6FODM0k",
+  authDomain: "shear-geniu.firebaseapp.com",
+  projectId: "shear-geniu",
+  storageBucket: "shear-geniu.firebasestorage.app",
+  messagingSenderId: "215757153302",
+  appId: "1:215757153302:web:0516d63981d2d471cdc137",
+  measurementId: "G-87M71P4ERQ"
 };
 
 // Initialize Firebase
