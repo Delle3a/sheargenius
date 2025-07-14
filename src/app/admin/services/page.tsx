@@ -72,12 +72,12 @@ export default function AdminServicesPage() {
   };
 
   const handleDeleteService = (serviceId: string) => {
-    setServices(services.filter(s => s.id !== serviceId));
     // In a real app, this would be an API call. Here we mutate the imported array.
     const serviceIndex = initialServices.findIndex(s => s.id === serviceId);
     if (serviceIndex !== -1) {
       initialServices.splice(serviceIndex, 1);
     }
+    setServices(services.filter(s => s.id !== serviceId));
   };
 
   const openEditDialog = (service: Service) => {
