@@ -1,16 +1,19 @@
 
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { services as staticServices, barbers } from "@/lib/data";
+import { services } from "@/lib/data";
+import { getBarbers } from "@/lib/firebase/barbers";
+import { getServices } from "@/lib/firebase/services";
 import { BarberPole } from "@/components/icons";
 import { Phone, MapPin, Mail } from "lucide-react";
 import { HeroActionButton } from "@/components/hero-action-button";
 
-export default function Home() {
+export default async function Home() {
+  const staticServices = await getServices();
+  const barbers = await getBarbers();
+
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-1">
@@ -63,8 +66,8 @@ export default function Home() {
                     <CardTitle className="font-headline">{service.name}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-2xl font-bold">{service.price.toFixed(2)} €</p>
-                    <p className="text-sm text-muted-foreground">{service.duration} minutes</p>
+                    <p className="text-2xl font-bold">{(typeof service.price === 'number' ? service.price : 0).toFixed(2)} €</p>
+                    <p className="text-sm text-muted-foreground">{service.duration || 0} minutes</p>
                   </CardContent>
                 </Card>
               ))}

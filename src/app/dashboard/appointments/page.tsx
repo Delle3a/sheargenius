@@ -1,10 +1,12 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
-import { bookings as allBookings, services as staticServices, barbers } from "@/lib/data";
-import type { Booking } from "@/lib/data";
+import { bookings as allBookings, services as staticServices } from "@/lib/data";
+import type { Booking, Barber } from "@/lib/data";
+import { getBarbers } from "@/lib/firebase/barbers";
 import {
   Card,
   CardContent,
@@ -44,18 +46,34 @@ export default function AppointmentsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [userBookings, setUserBookings] = useState<Booking[]>([]);
+  const [barbers, setBarbers] = useState<Barber[]>([]);
+  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/login");
     } else {
-      // In a real app, this would be a fetch call.
-      setUserBookings(allBookings.filter((b) => b.userId === user?.id));
+      const fetchData = async () => {
+        try {
+          const barbersFromDb = await getBarbers();
+          setBarbers(barbersFromDb);
+          setUserBookings(allBookings.filter((b) => b.userId === user?.id));
+        } catch(e) {
+            toast({
+              title: "Erreur",
+              description: "Impossible de charger les données.",
+              variant: "destructive",
+            });
+        } finally {
+            setLoading(false);
+        }
+      }
+      fetchData();
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user, router, toast]);
 
   const handleCancel = (bookingId: string) => {
-    // In real app, this would be a server action
     setUserBookings(
       userBookings.map((b) =>
         b.id === bookingId ? { ...b, status: "cancelled" } : b
@@ -74,8 +92,11 @@ export default function AppointmentsPage() {
     (b) => new Date(b.date) < new Date() || b.status !== "upcoming"
   );
 
+  if (loading) {
+    return <div className="container py-12 text-center">Chargement...</div>;
+  }
+  
   if (!isAuthenticated) {
-    // This will be handled by the layout, but as a fallback:
     return (
       <div className="container py-12 text-center">
         <p>Redirection vers la page de connexion...</p>

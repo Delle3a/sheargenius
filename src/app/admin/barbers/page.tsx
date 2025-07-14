@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { barbers as initialBarbers } from '@/lib/data';
+import { getBarbers, addBarber, updateBarber, deleteBarber } from '@/lib/firebase/barbers';
 import type { Barber } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,12 +37,34 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import Image from 'next/image';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminBarbersPage() {
-  const [barbers, setBarbers] = useState<Barber[]>(initialBarbers);
+  const [barbers, setBarbers] = useState<Barber[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingBarber, setEditingBarber] = useState<Barber | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchBarbers = async () => {
+      try {
+        const barbersFromDb = await getBarbers();
+        setBarbers(barbersFromDb);
+      } catch (error) {
+        console.error("Error fetching barbers: ", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les coiffeurs.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBarbers();
+  }, [toast]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -74,7 +96,6 @@ export default function AdminBarbersPage() {
       avatarUrl = avatarPreview;
     }
 
-
     const barberData = {
       name: formData.get('name') as string,
       specialty: formData.get('specialty') as string,
@@ -82,36 +103,44 @@ export default function AdminBarbersPage() {
       isAvailable: formData.get('isAvailable') === 'on',
     };
 
-    if (editingBarber) {
-      const updatedBarber = { ...editingBarber, ...barberData };
-      const updatedBarbers = barbers.map(b =>
-        b.id === editingBarber.id ? updatedBarber : b
-      );
-      setBarbers(updatedBarbers);
-
-      const barberIndex = initialBarbers.findIndex(b => b.id === editingBarber.id);
-      if (barberIndex !== -1) {
-        initialBarbers[barberIndex] = updatedBarber;
+    setLoading(true);
+    try {
+      if (editingBarber) {
+        await updateBarber(editingBarber.id, barberData);
+        setBarbers(barbers.map(b => (b.id === editingBarber.id ? { ...b, ...barberData } : b)));
+        toast({ title: "Succès", description: "Coiffeur mis à jour." });
+      } else {
+        const newBarber = await addBarber(barberData);
+        setBarbers([...barbers, newBarber]);
+        toast({ title: "Succès", description: "Coiffeur ajouté." });
       }
-    } else {
-      const newBarber: Barber = {
-        id: (Date.now()).toString(),
-        ...barberData,
-      };
-      setBarbers([...barbers, newBarber]);
-      initialBarbers.push(newBarber);
+    } catch (error) {
+      console.error("Error saving barber: ", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'enregistrer le coiffeur.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDialogOpen(false);
+      setEditingBarber(null);
+      setAvatarPreview(null);
+      setLoading(false);
     }
-    setIsDialogOpen(false);
-    setEditingBarber(null);
-    setAvatarPreview(null);
   };
 
-  const handleDeleteBarber = (barberId: string) => {
-    setBarbers(barbers.filter(b => b.id !== barberId));
-    
-    const barberIndex = initialBarbers.findIndex(b => b.id === barberId);
-    if (barberIndex !== -1) {
-      initialBarbers.splice(barberIndex, 1);
+  const handleDeleteBarber = async (barberId: string) => {
+    try {
+      await deleteBarber(barberId);
+      setBarbers(barbers.filter(b => b.id !== barberId));
+      toast({ title: "Succès", description: "Coiffeur supprimé." });
+    } catch (error) {
+      console.error("Error deleting barber: ", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer le coiffeur.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -127,17 +156,28 @@ export default function AdminBarbersPage() {
     setIsDialogOpen(true);
   };
 
-  const handleAvailabilityChange = (barberId: string, isAvailable: boolean) => {
+  const handleAvailabilityChange = async (barberId: string, isAvailable: boolean) => {
+    const originalBarbers = [...barbers];
     const updatedBarbers = barbers.map(b =>
       b.id === barberId ? { ...b, isAvailable } : b
     );
     setBarbers(updatedBarbers);
     
-    const barberIndex = initialBarbers.findIndex(b => b.id === barberId);
-    if (barberIndex !== -1) {
-      initialBarbers[barberIndex].isAvailable = isAvailable;
+    try {
+        await updateBarber(barberId, { isAvailable });
+    } catch(error) {
+        setBarbers(originalBarbers);
+        toast({
+            title: "Erreur",
+            description: "Impossible de mettre à jour la disponibilité.",
+            variant: "destructive",
+        });
     }
   };
+  
+  if (loading) {
+      return <div>Chargement des coiffeurs...</div>
+  }
 
   return (
     <div>
@@ -252,5 +292,4 @@ export default function AdminBarbersPage() {
       </div>
     </div>
   );
-
-    
+}

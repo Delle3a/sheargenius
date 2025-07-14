@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
@@ -14,8 +15,10 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { services as staticServices, barbers, availableTimeSlots, bookings } from "@/lib/data";
-import type { Booking } from "@/lib/data";
+import { services as staticServices, availableTimeSlots, bookings } from "@/lib/data";
+import type { Booking, Service, Barber } from "@/lib/data";
+import { getServices } from "@/lib/firebase/services";
+import { getBarbers } from "@/lib/firebase/barbers";
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { CheckCircle } from "lucide-react";
@@ -24,6 +27,10 @@ export default function BookAppointmentPage() {
   const { isAuthenticated, user } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+
+  const [services, setServices] = useState<Service[]>([]);
+  const [barbers, setBarbers] = useState<Barber[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [step, setStep] = useState(1);
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -37,6 +44,29 @@ export default function BookAppointmentPage() {
     }
   }, [isAuthenticated, router]);
   
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [servicesFromDb, barbersFromDb] = await Promise.all([
+          getServices(),
+          getBarbers(),
+        ]);
+        setServices(servicesFromDb);
+        setBarbers(barbersFromDb);
+      } catch (error) {
+        console.error("Failed to fetch data", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les données de réservation.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [toast]);
+
   const handleBooking = () => {
     if (!date || !selectedService || !selectedBarber || !selectedTime || !user) {
       toast({
@@ -48,7 +78,6 @@ export default function BookAppointmentPage() {
     }
     
     let barberToBook = selectedBarber;
-    // If 'any' is selected, find a truly available barber for the selected slot
     if (barberToBook === 'any') {
       const allAvailableBarbers = barbers.filter(b => b.isAvailable);
       const bookedBarberIds = bookings
@@ -65,7 +94,6 @@ export default function BookAppointmentPage() {
         });
         return;
       }
-      // Assign a random free barber
       const randomIndex = Math.floor(Math.random() * freeBarbers.length);
       barberToBook = freeBarbers[randomIndex].id;
     }
@@ -80,7 +108,6 @@ export default function BookAppointmentPage() {
       status: 'upcoming'
     };
     
-    // In a real app, this would be a server action. Here we add to the in-memory array.
     bookings.push(newBooking);
     
     toast({
@@ -125,18 +152,18 @@ export default function BookAppointmentPage() {
       ).map(b => b.time);
       return allTimesForDay.filter(time => !barberBookings.includes(time));
     }
-  }, [date, selectedBarber, allTimesForDay]);
+  }, [date, selectedBarber, allTimesForDay, barbers]);
 
 
-  const serviceDetails = staticServices.find(s => s.id === selectedService);
+  const serviceDetails = services.find(s => s.id === selectedService);
   const barberDetails = barbers.find(b => b.id === selectedBarber);
   const availableBarbersForSelect = barbers.filter(b => b.isAvailable);
 
 
-  if (!isAuthenticated) {
+  if (loading || !isAuthenticated) {
     return (
        <div className="container py-12 text-center">
-         <p>Redirection vers la page de connexion...</p>
+         <p>Chargement...</p>
        </div>
     );
   }
@@ -158,9 +185,9 @@ export default function BookAppointmentPage() {
                       <SelectValue placeholder="Sélectionnez un service" />
                     </SelectTrigger>
                     <SelectContent>
-                      {staticServices.map((service) => (
+                      {services.map((service) => (
                         <SelectItem key={service.id} value={service.id}>
-                          {service.name} - {service.price.toFixed(2)} €
+                          {service.name} - {(typeof service.price === 'number' ? service.price : 0).toFixed(2)} €
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -204,7 +231,7 @@ export default function BookAppointmentPage() {
                   selected={date}
                   onSelect={(newDate) => {
                     setDate(newDate);
-                    setSelectedTime(undefined); // Reset time when date changes
+                    setSelectedTime(undefined); 
                   }}
                   className="rounded-md border p-0"
                   disabled={(day) => day < new Date(new Date().setDate(new Date().getDate() - 1)) || day.getDay() === 0 }

@@ -1,13 +1,14 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   bookings as initialBookings,
   services as staticServices,
-  barbers,
   users,
 } from "@/lib/data";
-import type { Booking } from "@/lib/data";
+import type { Booking, Barber } from "@/lib/data";
+import { getBarbers } from "@/lib/firebase/barbers";
 import {
   Table,
   TableBody,
@@ -28,6 +29,7 @@ import {
 import { MoreHorizontal } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { useToast } from "@/hooks/use-toast";
 
 const statusTranslations: { [key in Booking['status']]: string } = {
   upcoming: 'à venir',
@@ -37,17 +39,43 @@ const statusTranslations: { [key in Booking['status']]: string } = {
 
 export default function AdminAppointmentsPage() {
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
+  const [barbers, setBarbers] = useState<Barber[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchBarbersData = async () => {
+      try {
+        const barbersFromDb = await getBarbers();
+        setBarbers(barbersFromDb);
+      } catch (error) {
+        console.error("Error fetching barbers: ", error);
+        toast({
+            title: "Erreur",
+            description: "Impossible de charger les coiffeurs.",
+            variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBarbersData();
+  }, [toast]);
+  
 
   const handleStatusChange = (bookingId: string, status: Booking['status']) => {
     const updatedBookings = bookings.map(b => b.id === bookingId ? { ...b, status } : b);
     setBookings(updatedBookings);
-    // In a real app, you'd also update the source `initialBookings` array or a database
     const bookingIndex = initialBookings.findIndex(b => b.id === bookingId);
     if (bookingIndex > -1) {
       initialBookings[bookingIndex].status = status;
     }
   };
   
+  if (loading) {
+    return <div>Chargement...</div>;
+  }
+
   return (
     <div>
       <h1 className="text-3xl font-bold font-headline mb-6">Tous les rendez-vous</h1>

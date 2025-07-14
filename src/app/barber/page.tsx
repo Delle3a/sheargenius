@@ -1,8 +1,10 @@
+
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/context/auth-context";
-import { bookings, services as staticServices, users, barbers } from "@/lib/data";
+import { bookings, services as staticServices, users } from "@/lib/data";
+import { getBarbers, updateBarber } from "@/lib/firebase/barbers";
 import type { Booking, Barber } from "@/lib/data";
 import {
   Table,
@@ -28,6 +30,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 
 const statusTranslations: { [key in Booking['status']]: string } = {
   upcoming: 'à venir',
@@ -38,28 +41,43 @@ const statusTranslations: { [key in Booking['status']]: string } = {
 
 export default function BarberSchedulePage() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [myBookings, setMyBookings] = useState<Booking[]>([]);
   const [barberDetails, setBarberDetails] = useState<Barber | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
-      const barberData = barbers.find(b => b.id === user.id) ?? null;
-      setBarberDetails(barberData);
-      
-      const barberBookings = bookings.filter(b => b.barberId === user.id);
-      setMyBookings(barberBookings);
+      const fetchData = async () => {
+        try {
+          const allBarbers = await getBarbers();
+          const barberData = allBarbers.find(b => b.id === user.id) ?? null;
+          setBarberDetails(barberData);
+          
+          const barberBookings = bookings.filter(b => b.barberId === user.id);
+          setMyBookings(barberBookings);
+        } catch (error) {
+            console.error("Error fetching barber data: ", error);
+            toast({ title: "Erreur", description: "Impossible de charger les données du coiffeur.", variant: "destructive" });
+        } finally {
+            setLoading(false);
+        }
+      };
+      fetchData();
     }
-  }, [user]);
+  }, [user, toast]);
   
-  const handleAvailabilityChange = (isAvailable: boolean) => {
+  const handleAvailabilityChange = async (isAvailable: boolean) => {
     if (barberDetails) {
+        const originalDetails = { ...barberDetails };
         const updatedBarber = { ...barberDetails, isAvailable };
         setBarberDetails(updatedBarber);
-
-        // Update the global barbers array (simulation for no DB)
-        const barberIndex = barbers.findIndex(b => b.id === barberDetails.id);
-        if (barberIndex !== -1) {
-            barbers[barberIndex].isAvailable = isAvailable;
+        try {
+            await updateBarber(barberDetails.id, { isAvailable });
+        } catch(error) {
+            console.error("Error updating availability: ", error);
+            setBarberDetails(originalDetails);
+            toast({ title: "Erreur", description: "Impossible de mettre à jour la disponibilité.", variant: "destructive" });
         }
     }
   };
@@ -149,6 +167,10 @@ export default function BarberSchedulePage() {
         </Table>
       </div>
   );
+  
+  if (loading) {
+      return <div>Chargement de l'horaire...</div>
+  }
 
   return (
     <div className="space-y-6">

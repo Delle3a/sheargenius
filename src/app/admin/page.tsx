@@ -1,5 +1,7 @@
+
 "use client"
 
+import { useState, useEffect } from "react"
 import {
   Card,
   CardContent,
@@ -16,7 +18,9 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { bookings, services as staticServices, users, barbers } from "@/lib/data"
+import { bookings, services as staticServices, users } from "@/lib/data"
+import type { Barber } from "@/lib/data";
+import { getBarbers } from "@/lib/firebase/barbers";
 import { DollarSign, Users, Calendar, Scissors } from "lucide-react"
 import {
   ChartContainer,
@@ -28,6 +32,7 @@ import {
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, Tooltip, ResponsiveContainer } from "recharts"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
+import { useToast } from "@/hooks/use-toast"
 
 const statusTranslations: { [key in 'upcoming' | 'completed' | 'cancelled'] : string } = {
   upcoming: 'à venir',
@@ -37,6 +42,29 @@ const statusTranslations: { [key in 'upcoming' | 'completed' | 'cancelled'] : st
 
 
 export default function AdminDashboardPage() {
+  const [barbers, setBarbers] = useState<Barber[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchBarbersData = async () => {
+      try {
+        const barbersFromDb = await getBarbers();
+        setBarbers(barbersFromDb);
+      } catch (error) {
+        console.error("Error fetching barbers: ", error);
+        toast({
+            title: "Erreur",
+            description: "Impossible de charger les coiffeurs.",
+            variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBarbersData();
+  }, [toast]);
+
   const totalRevenue = bookings
     .filter(b => b.status === 'completed')
     .reduce((acc, booking) => {
@@ -62,6 +90,10 @@ export default function AdminDashboardPage() {
       label: "Revenu",
       color: "hsl(var(--primary))",
     },
+  }
+
+  if (loading) {
+      return <div>Chargement du tableau de bord...</div>
   }
 
   return (
