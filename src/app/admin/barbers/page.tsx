@@ -52,16 +52,23 @@ export default function AdminBarbersPage() {
     };
 
     if (editingBarber) {
+      const updatedBarber = { ...editingBarber, ...barberData };
       const updatedBarbers = barbers.map(b =>
-        b.id === editingBarber.id ? { ...b, ...barberData } : b
+        b.id === editingBarber.id ? updatedBarber : b
       );
       setBarbers(updatedBarbers);
+
+      const barberIndex = initialBarbers.findIndex(b => b.id === editingBarber.id);
+      if (barberIndex !== -1) {
+        initialBarbers[barberIndex] = updatedBarber;
+      }
     } else {
       const newBarber: Barber = {
-        id: (barbers.length + 1).toString(),
+        id: (Date.now()).toString(),
         ...barberData,
       };
       setBarbers([...barbers, newBarber]);
+      initialBarbers.push(newBarber);
     }
     setIsDialogOpen(false);
     setEditingBarber(null);
@@ -69,6 +76,11 @@ export default function AdminBarbersPage() {
 
   const handleDeleteBarber = (barberId: string) => {
     setBarbers(barbers.filter(b => b.id !== barberId));
+    
+    const barberIndex = initialBarbers.findIndex(b => b.id === barberId);
+    if (barberIndex !== -1) {
+      initialBarbers.splice(barberIndex, 1);
+    }
   };
 
   const openEditDialog = (barber: Barber) => {
@@ -86,6 +98,11 @@ export default function AdminBarbersPage() {
       b.id === barberId ? { ...b, isAvailable } : b
     );
     setBarbers(updatedBarbers);
+    
+    const barberIndex = initialBarbers.findIndex(b => b.id === barberId);
+    if (barberIndex !== -1) {
+      initialBarbers[barberIndex].isAvailable = isAvailable;
+    }
   };
 
   return (
@@ -125,7 +142,7 @@ export default function AdminBarbersPage() {
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="isAvailable" className="text-right">Disponible</Label>
-                   <Checkbox id="isAvailable" name="isAvailable" defaultChecked={editingBarber?.isAvailable ?? true} className="col-span-3" />
+                   <Checkbox id="isAvailable" name="isAvailable" defaultChecked={editingBarber?.isAvailable ?? true} />
                 </div>
               </div>
               <DialogFooter>
@@ -142,8 +159,7 @@ export default function AdminBarbersPage() {
             <TableRow>
               <TableHead>Coiffeur</TableHead>
               <TableHead>Spécialité</TableHead>
-              <TableHead>Statut</TableHead>
-              <TableHead>Disponible</TableHead>
+              <TableHead>Disponibilité</TableHead>
               <TableHead><span className="sr-only">Actions</span></TableHead>
             </TableRow>
           </TableHeader>
@@ -161,15 +177,14 @@ export default function AdminBarbersPage() {
                 </TableCell>
                 <TableCell>{barber.specialty}</TableCell>
                 <TableCell>
-                  <Badge variant={barber.isAvailable ? "default" : "secondary"}>
-                    {barber.isAvailable ? "Disponible" : "Indisponible"}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Switch
+                   <Switch
                     checked={barber.isAvailable}
                     onCheckedChange={(checked) => handleAvailabilityChange(barber.id, checked)}
+                    aria-label="Changer la disponibilité"
                   />
+                   <Badge variant={barber.isAvailable ? "default" : "secondary"} className="ml-2">
+                    {barber.isAvailable ? "Disponible" : "Indisponible"}
+                  </Badge>
                 </TableCell>
                 <TableCell className="text-right">
                    <DropdownMenu>
