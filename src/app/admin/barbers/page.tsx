@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { barbers as initialBarbers } from '@/lib/data';
 import type { Barber } from '@/lib/data';
 import { Button } from '@/components/ui/button';
@@ -35,19 +36,49 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import Image from 'next/image';
 
 export default function AdminBarbersPage() {
   const [barbers, setBarbers] = useState<Barber[]>(initialBarbers);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingBarber, setEditingBarber] = useState<Barber | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
-  const handleSaveBarber = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setAvatarPreview(null);
+    }
+  };
+
+  const handleSaveBarber = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const file = formData.get('avatar') as File;
+
+    let avatarUrl = editingBarber?.avatarUrl || 'https://placehold.co/100x100.png';
+
+    if (file && file.size > 0) {
+      avatarUrl = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+    } else if (avatarPreview) {
+      avatarUrl = avatarPreview;
+    }
+
+
     const barberData = {
       name: formData.get('name') as string,
       specialty: formData.get('specialty') as string,
-      avatarUrl: formData.get('avatarUrl') as string || 'https://placehold.co/100x100.png',
+      avatarUrl: avatarUrl,
       isAvailable: formData.get('isAvailable') === 'on',
     };
 
@@ -72,6 +103,7 @@ export default function AdminBarbersPage() {
     }
     setIsDialogOpen(false);
     setEditingBarber(null);
+    setAvatarPreview(null);
   };
 
   const handleDeleteBarber = (barberId: string) => {
@@ -85,11 +117,13 @@ export default function AdminBarbersPage() {
 
   const openEditDialog = (barber: Barber) => {
     setEditingBarber(barber);
+    setAvatarPreview(barber.avatarUrl);
     setIsDialogOpen(true);
   };
   
   const openNewDialog = () => {
     setEditingBarber(null);
+    setAvatarPreview(null);
     setIsDialogOpen(true);
   };
 
@@ -111,7 +145,10 @@ export default function AdminBarbersPage() {
         <h1 className="text-3xl font-bold font-headline">Gérer les coiffeurs</h1>
         <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
           setIsDialogOpen(isOpen);
-          if (!isOpen) setEditingBarber(null);
+          if (!isOpen) {
+            setEditingBarber(null);
+            setAvatarPreview(null);
+          }
         }}>
           <DialogTrigger asChild>
             <Button onClick={openNewDialog}>
@@ -137,9 +174,16 @@ export default function AdminBarbersPage() {
                   <Input id="specialty" name="specialty" defaultValue={editingBarber?.specialty} className="col-span-3" required />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="avatarUrl" className="text-right">URL de l'avatar</Label>
-                  <Input id="avatarUrl" name="avatarUrl" defaultValue={editingBarber?.avatarUrl} className="col-span-3" />
+                  <Label htmlFor="avatar" className="text-right">Avatar</Label>
+                  <Input id="avatar" name="avatar" type="file" onChange={handleFileChange} className="col-span-3" accept="image/*" />
                 </div>
+                {avatarPreview && (
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <div className="col-start-2 col-span-3">
+                      <Image src={avatarPreview} alt="Aperçu de l'avatar" width={100} height={100} className="rounded-full" />
+                    </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="isAvailable" className="text-right">Disponible</Label>
                    <Checkbox id="isAvailable" name="isAvailable" defaultChecked={editingBarber?.isAvailable ?? true} />
@@ -208,4 +252,5 @@ export default function AdminBarbersPage() {
       </div>
     </div>
   );
-}
+
+    
