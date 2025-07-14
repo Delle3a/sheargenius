@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 import { Calendar } from "@/components/ui/calendar";
@@ -48,18 +48,26 @@ export default function BookAppointmentPage() {
     }
     
     let barberToBook = selectedBarber;
+    // If 'any' is selected, find a truly available barber for the selected slot
     if (barberToBook === 'any') {
-      const availableBarbers = barbers.filter(b => b.isAvailable);
-      if (availableBarbers.length === 0) {
+      const allAvailableBarbers = barbers.filter(b => b.isAvailable);
+      const bookedBarberIds = bookings
+        .filter(b => format(new Date(b.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd') && b.time === selectedTime)
+        .map(b => b.barberId);
+      
+      const freeBarbers = allAvailableBarbers.filter(b => !bookedBarberIds.includes(b.id));
+
+      if (freeBarbers.length === 0) {
         toast({
           title: "Aucun coiffeur disponible",
-          description: "Désolé, aucun coiffeur n'est disponible pour le moment. Veuillez réessayer plus tard.",
+          description: "Désolé, aucun coiffeur n'est disponible à cette heure. Veuillez choisir un autre créneau.",
           variant: "destructive",
         });
         return;
       }
-      const randomIndex = Math.floor(Math.random() * availableBarbers.length);
-      barberToBook = availableBarbers[randomIndex].id;
+      // Assign a random free barber
+      const randomIndex = Math.floor(Math.random() * freeBarbers.length);
+      barberToBook = freeBarbers[randomIndex].id;
     }
 
     const newBooking: Booking = {
@@ -92,11 +100,37 @@ export default function BookAppointmentPage() {
   }
 
   const dayOfWeek = date ? date.getDay() : -1;
-  const times = availableTimeSlots[dayOfWeek] || [];
+  const allTimesForDay = availableTimeSlots[dayOfWeek] || [];
+
+  const filteredTimes = useMemo(() => {
+    if (!date || !selectedBarber) return [];
+
+    const formattedDate = format(date, 'yyyy-MM-dd');
+    
+    if (selectedBarber === 'any') {
+      const allAvailableBarbers = barbers.filter(b => b.isAvailable);
+      return allTimesForDay.filter(time => {
+        const bookedBarbersCount = bookings.filter(b => 
+          b.date === formattedDate && 
+          b.time === time && 
+          b.status === 'upcoming'
+        ).length;
+        return bookedBarbersCount < allAvailableBarbers.length;
+      });
+    } else {
+      const barberBookings = bookings.filter(b => 
+        b.barberId === selectedBarber && 
+        b.date === formattedDate &&
+        b.status === 'upcoming'
+      ).map(b => b.time);
+      return allTimesForDay.filter(time => !barberBookings.includes(time));
+    }
+  }, [date, selectedBarber, allTimesForDay]);
+
 
   const serviceDetails = services.find(s => s.id === selectedService);
   const barberDetails = barbers.find(b => b.id === selectedBarber);
-  const availableBarbers = barbers.filter(b => b.isAvailable);
+  const availableBarbersForSelect = barbers.filter(b => b.isAvailable);
 
 
   if (!isAuthenticated) {
@@ -140,7 +174,7 @@ export default function BookAppointmentPage() {
                     </SelectTrigger>
                     <SelectContent>
                        <SelectItem value="any">N'importe quel coiffeur disponible</SelectItem>
-                      {availableBarbers.map((barber) => (
+                      {availableBarbersForSelect.map((barber) => (
                         <SelectItem key={barber.id} value={barber.id}>
                           {barber.name}
                         </SelectItem>
@@ -168,7 +202,10 @@ export default function BookAppointmentPage() {
                 <Calendar
                   mode="single"
                   selected={date}
-                  onSelect={setDate}
+                  onSelect={(newDate) => {
+                    setDate(newDate);
+                    setSelectedTime(undefined); // Reset time when date changes
+                  }}
                   className="rounded-md border p-0"
                   disabled={(day) => day < new Date(new Date().setDate(new Date().getDate() - 1)) || day.getDay() === 0 }
                   locale={fr}
@@ -176,15 +213,19 @@ export default function BookAppointmentPage() {
               </div>
               {date && (
                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 pt-4">
-                  {times.map(time => (
-                    <Button 
-                      key={time}
-                      variant={selectedTime === time ? "default" : "outline"}
-                      onClick={() => setSelectedTime(time)}
-                    >
-                      {time}
-                    </Button>
-                  ))}
+                  {allTimesForDay.map(time => {
+                    const isAvailable = filteredTimes.includes(time);
+                    return (
+                      <Button 
+                        key={time}
+                        variant={selectedTime === time ? "default" : "outline"}
+                        onClick={() => setSelectedTime(time)}
+                        disabled={!isAvailable}
+                      >
+                        {time}
+                      </Button>
+                    );
+                  })}
                 </div>
               )}
                <div className="flex justify-between pt-4">
