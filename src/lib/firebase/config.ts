@@ -2,7 +2,7 @@
 // Go to your Firebase project settings, and under "General", find your web app.
 // Click on "Config" to get your Firebase configuration object.
 import { initializeApp, getApps } from "firebase/app";
-import { getFirestore }s from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
