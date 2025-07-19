@@ -23,35 +23,94 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-async function seedCollection(collectionName: string, data: any[], idField = 'id') {
-    const collectionRef = collection(db, collectionName);
-    const snapshot = await getDocs(collectionRef);
-    if (!snapshot.empty) {
-        console.log(`${collectionName} collection already contains data. Skipping seeding.`);
-        return;
-    }
-    
-    const batch = writeBatch(db);
-    data.forEach(item => {
-        // Use the hardcoded ID from the data file to maintain relationships
-        const docRef = doc(db, collectionName, item[idField]);
-        const { [idField]: id, ...rest } = item;
-        batch.set(docRef, rest);
-    });
-    
-    await batch.commit();
-    console.log(`${data.length} documents have been added to the ${collectionName} collection.`);
+async function seedServices() {
+  const servicesCollection = collection(db, 'services');
+  const snapshot = await getDocs(servicesCollection);
+  if (!snapshot.empty) {
+    console.log('Services collection already contains data. Skipping seeding.');
+    return;
+  }
+
+  const batch = writeBatch(db);
+  initialServices.forEach(service => {
+    // Use the hardcoded ID from the data file to maintain relationships
+    const docRef = doc(db, 'services', service.id);
+    const { id, ...rest } = service;
+    batch.set(docRef, rest);
+  });
+
+  await batch.commit();
+  console.log(`${initialServices.length} services have been added to the database.`);
 }
 
+async function seedBarbers() {
+  const barbersCollection = collection(db, 'barbers');
+  const snapshot = await getDocs(barbersCollection);
+  if (!snapshot.empty) {
+    console.log('Barbers collection already contains data. Skipping seeding.');
+    return;
+  }
+
+  const batch = writeBatch(db);
+  initialBarbers.forEach(barber => {
+     // Use the hardcoded ID from the data file to maintain relationships
+    const docRef = doc(db, 'barbers', barber.id);
+    const { id, ...rest } = barber;
+    batch.set(docRef, rest);
+  });
+
+  await batch.commit();
+  console.log(`${initialBarbers.length} barbers have been added to the database.`);
+}
+
+async function seedBookings() {
+  const bookingsCollection = collection(db, 'bookings');
+  const snapshot = await getDocs(bookingsCollection);
+  if (!snapshot.empty) {
+    console.log('Bookings collection already contains data. Skipping seeding.');
+    return;
+  }
+
+  const batch = writeBatch(db);
+  initialBookings.forEach(booking => {
+     // Use the hardcoded ID from the data file to maintain relationships
+    const docRef = doc(db, 'bookings', booking.id);
+    const { id, ...rest } = booking;
+    batch.set(docRef, rest);
+  });
+
+  await batch.commit();
+  console.log(`${initialBookings.length} bookings have been added to the database.`);
+}
+
+async function seedUsers() {
+  const usersCollection = collection(db, 'users');
+  const snapshot = await getDocs(usersCollection);
+  if (!snapshot.empty) {
+    console.log('Users collection already contains data. Skipping seeding.');
+    return;
+  }
+
+  const batch = writeBatch(db);
+  initialUsers.forEach(user => {
+    // Use the hardcoded ID from the data file to maintain relationships
+    const docRef = doc(db, 'users', user.id);
+    const { id, ...rest } = user;
+    batch.set(docRef, rest);
+  });
+
+  await batch.commit();
+  console.log(`${initialUsers.length} users have been added to the database.`);
+}
 
 async function main() {
   console.log('Starting database seed...');
   try {
-    await seedCollection('services', initialServices);
-    await seedCollection('barbers', initialBarbers);
-    await seedCollection('bookings', initialBookings);
-    await seedCollection('users', initialUsers);
-    
+    await seedServices();
+    await seedBarbers();
+    await seedBookings();
+    await seedUsers();
+
     console.log('Database seeding completed successfully!');
     // The script will hang open due to the active Firestore connection.
     // We explicitly exit the process.
