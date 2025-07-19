@@ -4,6 +4,7 @@
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -118,6 +119,12 @@ export default function LoginPage() {
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Se connecter
             </Button>
+             <div className="mt-4 text-center text-sm">
+              Vous n'avez pas de compte ?{" "}
+              <Link href="/signup" className="underline">
+                S'inscrire
+              </Link>
+            </div>
             <div className="text-center text-sm text-muted-foreground">
               <p>Ou utilisez un compte de démonstration :</p>
               <Button variant="link" size="sm" onClick={() => { setEmail('client@test.com'); setPassword('password'); }}>Client</Button>

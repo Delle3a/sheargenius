@@ -95,9 +95,14 @@ export function SiteHeader() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button asChild>
-              <Link href="/login">Connexion</Link>
-            </Button>
+             <nav className="flex items-center gap-2">
+                <Button variant="ghost" asChild>
+                    <Link href="/login">Connexion</Link>
+                </Button>
+                <Button asChild>
+                    <Link href="/signup">S'inscrire</Link>
+                </Button>
+            </nav>
           )}
         </div>
       </div>

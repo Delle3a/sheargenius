@@ -2,7 +2,7 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { getUsers } from '@/lib/firebase/users';
+import { getUsers, addUser } from '@/lib/firebase/users';
 
 export interface User {
   id: string;
@@ -17,6 +17,7 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   login: (email: string, pass: string) => Promise<User>;
+  signup: (name: string, email: string, pass: string) => Promise<User>;
   logout: () => void;
   isAuthenticated: boolean | null; // null represents a loading state
   isAdmin: boolean;
@@ -65,6 +66,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const signup = async (name: string, email: string, pass: string): Promise<User> => {
+    const allUsers = await getUsers();
+    const existingUser = allUsers.find(u => u.email === email);
+    if (existingUser) {
+        throw new Error("Un compte existe déjà avec cette adresse e-mail.");
+    }
+
+    const newUser: Omit<User, 'id'> = {
+        name,
+        email,
+        password: pass, // Again, for demo only
+        role: 'customer'
+    };
+
+    const createdUser = await addUser(newUser);
+    const userToStore = { ...createdUser };
+    delete userToStore.password;
+
+    setUser(userToStore);
+    setIsAuthenticated(true);
+    localStorage.setItem('user', JSON.stringify(userToStore));
+    return userToStore;
+  };
+
+
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
@@ -75,7 +101,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isBarber = user?.role === 'barber';
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, isAdmin, isBarber }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, isAuthenticated, isAdmin, isBarber }}>
       {children}
     </AuthContext.Provider>
   );

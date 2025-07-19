@@ -2,7 +2,7 @@
 "use server";
 
 import { db } from './config';
-import { collection, getDocs, doc, DocumentData } from 'firebase/firestore';
+import { collection, getDocs, doc, DocumentData, addDoc } from 'firebase/firestore';
 import type { User } from '@/context/auth-context';
 
 const toUser = (doc: DocumentData): User => {
@@ -21,4 +21,10 @@ export async function getUsers(): Promise<User[]> {
     const userSnapshot = await getDocs(usersCol);
     const userList = userSnapshot.docs.map(doc => toUser(doc));
     return userList;
+}
+
+export async function addUser(user: Omit<User, 'id'>): Promise<User> {
+    const usersCol = collection(db, 'users');
+    const docRef = await addDoc(usersCol, user);
+    return { id: docRef.id, ...user };
 }
