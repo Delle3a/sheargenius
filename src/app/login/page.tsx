@@ -29,8 +29,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // This effect should only redirect if authentication is already established.
-    // The handleLogin function will manage redirects after a successful login.
+    // Redirect if the user is already authenticated
     if (isAuthenticated) {
       if (user?.role === 'admin') {
         router.push('/admin');
@@ -65,15 +64,12 @@ export default function LoginPage() {
       });
       setLoading(false); // Stop loading on error
     }
-    // No need to set loading to false on success, as the page will redirect.
   };
 
-  // While auth state is being determined, show a loading screen.
-  // Or if the user is already logged in, they will be redirected by the useEffect.
   if (isAuthenticated === null || isAuthenticated === true) {
     return (
       <div className="container flex items-center justify-center min-h-[calc(100vh-10rem)] py-12">
-        Chargement...
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
