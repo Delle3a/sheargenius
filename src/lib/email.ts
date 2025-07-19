@@ -24,8 +24,8 @@ interface SendConfirmationEmailParams {
 }
 
 export async function sendConfirmationEmail({ to, name, token }: SendConfirmationEmailParams) {
-    // Determine the base URL. Prefer the explicit env var, but fall back to VERCEL_URL for App Hosting.
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+    // Determine the base URL. Use FIREBASE_STUDIO_PREVIEW_URL which is always available in this environment.
+    const baseUrl = process.env.FIREBASE_STUDIO_PREVIEW_URL || 'http://localhost:3000';
     const confirmationUrl = `${baseUrl}/signup/confirm?token=${token}`;
     
     if (!transporter) {
