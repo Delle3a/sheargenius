@@ -24,13 +24,17 @@ interface SendConfirmationEmailParams {
 }
 
 export async function sendConfirmationEmail({ to, name, token }: SendConfirmationEmailParams) {
+    // Determine the base URL. Prefer the explicit env var, but fall back to VERCEL_URL for App Hosting.
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+    const confirmationUrl = `${baseUrl}/signup/confirm?token=${token}`;
+    
     if (!transporter) {
         console.warn("Email server not configured. Skipping sending real email.");
+        console.log("Confirmation URL (for simulation):", confirmationUrl);
         // Return a flag indicating that the email was not sent
         return { emailSent: false };
     }
 
-    const confirmationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/signup/confirm?token=${token}`;
 
     const mailOptions = {
         from: `Shear Genius <${user}>`,
