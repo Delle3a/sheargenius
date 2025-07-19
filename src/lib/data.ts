@@ -42,13 +42,14 @@ export const barbers: Barber[] = [
 export const users: User[] = [
   { id: 'user-customer', name: 'Jean Dupont', email: 'client@test.com', role: 'customer' },
   { id: 'user-admin', name: 'Admin User', email: 'admin@test.com', role: 'admin' },
-  { id: 'barber-3', name: 'Sam Chen', email: 'coiffeur@test.com', role: 'barber'}, // This user is also a barber
+  // The barber user now has a matching ID in the barbers array
+  { id: 'barber-3', name: 'Sam Chen', email: 'coiffeur@test.com', role: 'barber'},
 ];
 
 export const bookings: Booking[] = [
   {
     id: 'booking-1',
-    userId: 'user-customer',
+    userId: 'user-customer', // Corrected User ID
     serviceId: 'service-1',
     barberId: 'barber-2',
     date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -57,30 +58,11 @@ export const bookings: Booking[] = [
   },
   {
     id: 'booking-2',
-    userId: 'user-customer',
+    userId: 'user-customer', // Corrected User ID
     serviceId: 'service-3',
     barberId: 'barber-1',
     date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     time: '14:30',
     status: 'completed',
   },
-  {
-    id: 'booking-3',
-    userId: 'user-customer',
-    serviceId: 'service-2',
-    barberId: 'barber-3', 
-    date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    time: '11:00',
-    status: 'upcoming',
-  },
 ];
-
-export const availableTimeSlots: { [key: number]: string[] } = {
-  0: [], // Dimanche
-  1: ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'], // Lundi
-  2: ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'], // Mardi
-  3: ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'], // Mercredi
-  4: ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'], // Jeudi
-  5: ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00'], // Vendredi
-  6: ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00'], // Samedi
-};
