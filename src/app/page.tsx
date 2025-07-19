@@ -58,12 +58,19 @@ export default async function Home() {
             </div>
             <div className="mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 pt-12">
               {staticServices.map((service) => (
-                <Card key={service.id} className="text-center">
-                  <CardHeader>
-                    <div className="mx-auto p-2 bg-primary/20 rounded-full w-fit">
-                      <BarberPole className="w-8 h-8 text-primary" />
+                <Card key={service.id} className="text-center overflow-hidden">
+                  <CardHeader className="p-0">
+                    <Image
+                      src="https://placehold.co/300x200.png"
+                      alt={service.name}
+                      width={300}
+                      height={200}
+                      className="object-cover w-full aspect-[3/2]"
+                      data-ai-hint={service.id === 'service-2' ? 'beard trim' : 'classic haircut'}
+                    />
+                    <div className="p-6">
+                      <CardTitle className="font-headline">{service.name}</CardTitle>
                     </div>
-                    <CardTitle className="font-headline">{service.name}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-2xl font-bold">{(typeof service.price === 'number' ? service.price : 0).toFixed(2)} €</p>
@@ -108,27 +115,35 @@ export default async function Home() {
         </section>
 
         <section id="contact" className="w-full py-12 md:py-24 lg:py-32">
-          <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
-            <div className="space-y-3">
+         <div className="container grid items-center justify-center gap-8 px-4 text-center md:px-6 lg:grid-cols-2 lg:text-left lg:gap-16">
+            <div className="space-y-4">
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight font-headline">Rendez-nous visite</h2>
               <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 Nous attendons votre visite avec impatience. Retrouvez-nous au cœur de la ville.
               </p>
+              <div className="w-full max-w-sm space-y-4 lg:max-w-none">
+                <div className="flex items-center gap-4">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  <span className="text-foreground">123 Rue de la Coupe, Styleburg, 45678</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <Phone className="h-5 w-5 text-primary" />
+                  <span className="text-foreground">(123) 456-7890</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <Mail className="h-5 w-5 text-primary" />
+                  <span className="text-foreground">contact@sheargenius.com</span>
+                </div>
+              </div>
             </div>
-            <div className="mx-auto w-full max-w-sm space-y-4">
-              <div className="flex items-center justify-center gap-4">
-                <MapPin className="h-5 w-5 text-primary" />
-                <span className="text-foreground">123 Rue de la Coupe, Styleburg, 45678</span>
-              </div>
-              <div className="flex items-center justify-center gap-4">
-                <Phone className="h-5 w-5 text-primary" />
-                <span className="text-foreground">(123) 456-7890</span>
-              </div>
-              <div className="flex items-center justify-center gap-4">
-                <Mail className="h-5 w-5 text-primary" />
-                <span className="text-foreground">contact@sheargenius.com</span>
-              </div>
-            </div>
+             <Image
+              src="https://placehold.co/600x400.png"
+              width="600"
+              height="400"
+              alt="Map"
+              data-ai-hint="city map"
+              className="mx-auto aspect-video overflow-hidden rounded-xl object-cover"
+            />
           </div>
         </section>
       </main>
