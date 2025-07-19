@@ -34,14 +34,19 @@ export function SiteHeader() {
             <span className="inline-block font-bold font-headline text-lg">Shear Genius</span>
           </Link>
           <nav className="hidden md:flex gap-6">
-            {!isAdmin && !isBarber && (
-               <Link href="/book" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-                Réserver maintenant
-              </Link>
-            )}
             {isAuthenticated && !isAdmin && !isBarber && (
-              <Link href="/dashboard/appointments" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-                Mes rendez-vous
+              <>
+                <Link href="/book" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
+                  Réserver maintenant
+                </Link>
+                <Link href="/dashboard/appointments" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
+                  Mes rendez-vous
+                </Link>
+              </>
+            )}
+            {!isAuthenticated && (
+              <Link href="/book" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
+                  Réserver maintenant
               </Link>
             )}
             {isAdmin && (
