@@ -3,6 +3,8 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { getUsers, addUser, updateUser } from '@/lib/firebase/users';
+import { sendConfirmationEmail } from '@/lib/email';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface User {
   id: string;
@@ -10,6 +12,7 @@ export interface User {
   email: string;
   role: 'customer' | 'admin' | 'barber';
   isVerified: boolean;
+  verificationToken?: string;
   // NOTE: In a real app, you would never store the password, even hashed, on the client.
   // This is for demonstration purposes only.
   password?: string;
@@ -18,7 +21,7 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   login: (email: string, pass: string) => Promise<User>;
-  signup: (name: string, email: string, pass: string) => Promise<User>;
+  signup: (name: string, email: string, pass: string) => Promise<Omit<User, 'password'>>;
   logout: () => void;
   isAuthenticated: boolean | null; // null represents a loading state
   isAdmin: boolean;
@@ -27,25 +30,20 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// A simple in-memory store for demo purposes. In a real app, use a proper session management solution.
+let sessionUser: User | null = null;
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  // null means we haven't checked yet, true/false means we have.
+  const [user, setUser] = useState<User | null>(sessionUser);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+    // This effect now only syncs the component state with the session state.
+    if (sessionUser) {
+        setUser(sessionUser);
         setIsAuthenticated(true);
-      } else {
+    } else {
         setIsAuthenticated(false);
-      }
-    } catch (error) {
-      // If JSON parsing fails, assume not authenticated
-      console.error("Failed to parse user from localStorage", error);
-      setIsAuthenticated(false);
-      localStorage.removeItem('user');
     }
   }, []);
 
@@ -62,40 +60,49 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const userToStore = { ...userToLogin };
-    // Do not store password in state or local storage
     delete userToStore.password; 
 
     setUser(userToStore);
+    sessionUser = userToStore;
     setIsAuthenticated(true);
-    localStorage.setItem('user', JSON.stringify(userToStore));
     return userToStore;
   };
 
-  const signup = async (name: string, email: string, pass: string): Promise<User> => {
+  const signup = async (name: string, email: string, pass:string): Promise<Omit<User, 'password'>> => {
     const allUsers = await getUsers();
     const existingUser = allUsers.find(u => u.email === email);
     if (existingUser) {
         throw new Error("Un compte existe déjà avec cette adresse e-mail.");
     }
 
+    const verificationToken = uuidv4();
     const newUser: Omit<User, 'id'> = {
         name,
         email,
-        password: pass, // Again, for demo only
+        password: pass,
         role: 'customer',
-        isVerified: false, // Start as unverified
+        isVerified: false,
+        verificationToken,
     };
 
     const createdUser = await addUser(newUser);
-    // Don't log the user in automatically
-    return createdUser;
+    
+    // Send the confirmation email
+    await sendConfirmationEmail({ 
+        to: createdUser.email, 
+        name: createdUser.name, 
+        token: verificationToken 
+    });
+
+    const { password, ...userToReturn } = createdUser;
+    return userToReturn;
   };
 
 
   const logout = () => {
     setUser(null);
+    sessionUser = null;
     setIsAuthenticated(false);
-    localStorage.removeItem('user');
   };
 
   const isAdmin = user?.role === 'admin';

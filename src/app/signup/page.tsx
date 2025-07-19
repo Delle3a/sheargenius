@@ -40,9 +40,9 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      const newUser = await signup(name, email, password);
+      await signup(name, email, password);
       // Instead of logging in, redirect to the confirmation page
-      router.push(`/signup/confirm?userId=${newUser.id}`);
+      router.push(`/signup/confirm`);
     } catch (err: any) {
       setError(err.message);
       toast({

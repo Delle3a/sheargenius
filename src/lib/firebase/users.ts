@@ -13,6 +13,7 @@ const toUser = (doc: DocumentData): User => {
         email: data.email,
         role: data.role,
         isVerified: data.isVerified,
+        verificationToken: data.verificationToken,
         password: data.password, // For demo purposes
     };
 };
