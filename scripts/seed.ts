@@ -4,7 +4,7 @@
 
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, writeBatch, getDocs, doc } from 'firebase/firestore';
-import { services as initialServices, barbers as initialBarbers, bookings as initialBookings, users as initialUsers } from '../src/lib/data';
+import { services as initialServices, barbers as initialBarbers, bookings as initialBookings, usersWithPasswords as initialUsers } from '../src/lib/data';
 
 // IMPORTANT: This script uses the same Firebase config as the app.
 // Make sure your src/lib/firebase/config.ts is correctly configured.
