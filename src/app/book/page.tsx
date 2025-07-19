@@ -41,12 +41,16 @@ export default function BookAppointmentPage() {
   const [selectedTime, setSelectedTime] = useState<string | undefined>();
   
   useEffect(() => {
+    // This effect handles both authentication and data fetching in the correct order.
+    if (isAuthenticated === null) {
+      // Auth state is still loading, so we wait.
+      return;
+    }
     if (!isAuthenticated) {
       router.push("/login");
+      return;
     }
-  }, [isAuthenticated, router]);
-  
-  useEffect(() => {
+
     const fetchData = async () => {
       try {
         const [servicesFromDb, barbersFromDb, bookingsFromDb] = await Promise.all([
@@ -55,7 +59,7 @@ export default function BookAppointmentPage() {
           getBookings(),
         ]);
         setServices(servicesFromDb);
-        setBarbers(barbersFromDb);
+        setBarbers(barbersFromDb.filter(b => b.isAvailable));
         setBookings(bookingsFromDb);
       } catch (error) {
         console.error("Failed to fetch data", error);
@@ -68,8 +72,9 @@ export default function BookAppointmentPage() {
         setLoading(false);
       }
     };
+
     fetchData();
-  }, [toast]);
+  }, [isAuthenticated, router, toast]);
 
   const handleBooking = async () => {
     if (!date || !selectedService || !selectedBarber || !selectedTime || !user) {
@@ -112,8 +117,14 @@ export default function BookAppointmentPage() {
     };
     
     try {
-      const newBooking = await addBooking(newBookingData);
-      setBookings([...bookings, newBooking]);
+      // We don't need the returned booking object here, but we could use it if needed.
+      await addBooking(newBookingData);
+      
+      // To make the UI update instantly, we add the new booking to the local state.
+      // We generate a temporary ID for the key, though it won't match the Firestore ID.
+      const tempNewBooking: Booking = { ...newBookingData, id: Date.now().toString() };
+      setBookings([...bookings, tempNewBooking]);
+
       toast({
         title: "Réservation confirmée !",
         description: `Votre rendez-vous est fixé pour le ${format(date, 'd MMMM yyyy', { locale: fr })} à ${selectedTime}.`,
@@ -167,10 +178,8 @@ export default function BookAppointmentPage() {
 
   const serviceDetails = services.find(s => s.id === selectedService);
   const barberDetails = barbers.find(b => b.id === selectedBarber);
-  const availableBarbersForSelect = barbers.filter(b => b.isAvailable);
 
-
-  if (loading || !isAuthenticated) {
+  if (loading) {
     return (
        <div className="container py-12 text-center">
          <p>Chargement...</p>
@@ -211,7 +220,7 @@ export default function BookAppointmentPage() {
                     </SelectTrigger>
                     <SelectContent>
                        <SelectItem value="any">N'importe quel coiffeur disponible</SelectItem>
-                      {availableBarbersForSelect.map((barber) => (
+                      {barbers.map((barber) => (
                         <SelectItem key={barber.id} value={barber.id}>
                           {barber.name}
                         </SelectItem>

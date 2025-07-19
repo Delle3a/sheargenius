@@ -18,7 +18,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, pass: string) => Promise<User>;
   logout: () => void;
-  isAuthenticated: boolean;
+  isAuthenticated: boolean | null; // null represents a loading state
   isAdmin: boolean;
   isBarber: boolean;
 }
@@ -27,12 +27,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  // null means we haven't checked yet, true/false means we have.
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
-  // Avoid hydration mismatch by delaying auth check to client-side
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    try {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+      }
+    } catch (error) {
+      // If JSON parsing fails, assume not authenticated
+      setIsAuthenticated(false);
     }
   }, []);
 
@@ -40,11 +49,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const allUsers = await getUsers();
     const userToLogin = allUsers.find(u => u.email === email);
 
-    // IMPORTANT: This is a simplified password check for demo purposes.
-    // In a production application, you should use a secure authentication provider
-    // (like Firebase Authentication) and never handle plaintext passwords.
     if (userToLogin && userToLogin.password === pass) {
       setUser(userToLogin);
+      setIsAuthenticated(true);
       localStorage.setItem('user', JSON.stringify(userToLogin));
       return userToLogin;
     } else {
@@ -54,10 +61,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     setUser(null);
+    setIsAuthenticated(false);
     localStorage.removeItem('user');
   };
 
-  const isAuthenticated = !!user;
   const isAdmin = user?.role === 'admin';
   const isBarber = user?.role === 'barber';
 
