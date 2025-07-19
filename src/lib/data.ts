@@ -1,3 +1,4 @@
+
 import type { User } from '@/context/auth-context';
 
 export interface Service {
@@ -26,10 +27,17 @@ export interface Booking {
 }
 
 // NOTE: In a real app, password handling would be done securely on a server.
-export const usersWithPasswords: User[] = [
-    { id: 'user-admin', name: 'Admin User', email: 'admin@test.com', role: 'admin', password: 'password' },
-    { id: 'barber-1', name: 'Alex Johnson', email: 'coiffeur@test.com', role: 'barber', password: 'password' },
-    { id: 'user-customer-1', name: 'Jean Dupont', email: 'client@test.com', role: 'customer', password: 'password' },
+// Add isVerified: true for all seed users so they can log in.
+export const usersWithPasswords: Omit<User, 'password'>[] = [
+    { id: 'user-admin', name: 'Admin User', email: 'admin@test.com', role: 'admin', isVerified: true },
+    { id: 'barber-1', name: 'Alex Johnson', email: 'coiffeur@test.com', role: 'barber', isVerified: true },
+    { id: 'user-customer-1', name: 'Jean Dupont', email: 'client@test.com', role: 'customer', isVerified: true },
+];
+
+export const users: (Omit<User, 'id'> & { id: string })[] = [
+    { id: 'user-admin', name: 'Admin User', email: 'admin@test.com', role: 'admin', password: 'password', isVerified: true },
+    { id: 'barber-1', name: 'Alex Johnson', email: 'coiffeur@test.com', role: 'barber', password: 'password', isVerified: true },
+    { id: 'user-customer-1', name: 'Jean Dupont', email: 'client@test.com', role: 'customer', password: 'password', isVerified: true },
 ];
 
 export const services: Service[] = [

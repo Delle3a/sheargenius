@@ -2,13 +2,14 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { getUsers, addUser } from '@/lib/firebase/users';
+import { getUsers, addUser, updateUser } from '@/lib/firebase/users';
 
 export interface User {
   id: string;
   name: string;
   email: string;
   role: 'customer' | 'admin' | 'barber';
+  isVerified: boolean;
   // NOTE: In a real app, you would never store the password, even hashed, on the client.
   // This is for demonstration purposes only.
   password?: string;
@@ -52,18 +53,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const allUsers = await getUsers();
     const userToLogin = allUsers.find(u => u.email === email);
 
-    if (userToLogin && userToLogin.password === pass) {
-      const userToStore = { ...userToLogin };
-      // Do not store password in state or local storage
-      delete userToStore.password; 
-
-      setUser(userToStore);
-      setIsAuthenticated(true);
-      localStorage.setItem('user', JSON.stringify(userToStore));
-      return userToStore;
-    } else {
+    if (!userToLogin || userToLogin.password !== pass) {
       throw new Error("Les informations d'identification sont invalides.");
     }
+
+    if (!userToLogin.isVerified) {
+        throw new Error("Votre compte n'est pas encore vérifié. Veuillez consulter votre e-mail.");
+    }
+
+    const userToStore = { ...userToLogin };
+    // Do not store password in state or local storage
+    delete userToStore.password; 
+
+    setUser(userToStore);
+    setIsAuthenticated(true);
+    localStorage.setItem('user', JSON.stringify(userToStore));
+    return userToStore;
   };
 
   const signup = async (name: string, email: string, pass: string): Promise<User> => {
@@ -77,17 +82,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         name,
         email,
         password: pass, // Again, for demo only
-        role: 'customer'
+        role: 'customer',
+        isVerified: false, // Start as unverified
     };
 
     const createdUser = await addUser(newUser);
-    const userToStore = { ...createdUser };
-    delete userToStore.password;
-
-    setUser(userToStore);
-    setIsAuthenticated(true);
-    localStorage.setItem('user', JSON.stringify(userToStore));
-    return userToStore;
+    // Don't log the user in automatically
+    return createdUser;
   };
 
 

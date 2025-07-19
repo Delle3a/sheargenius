@@ -40,12 +40,9 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      await signup(name, email, password);
-      toast({
-        title: "Compte créé avec succès !",
-        description: "Vous allez être redirigé.",
-      });
-      router.push("/dashboard/appointments");
+      const newUser = await signup(name, email, password);
+      // Instead of logging in, redirect to the confirmation page
+      router.push(`/signup/confirm?userId=${newUser.id}`);
     } catch (err: any) {
       setError(err.message);
       toast({
