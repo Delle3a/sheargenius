@@ -1,8 +1,9 @@
+
 "use client";
 
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,58 +15,98 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 export default function LoginPage() {
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
+  const [email, setEmail] = useState("client@test.com");
+  const [password, setPassword] = useState("password");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/");
+      if (user?.role === 'admin') {
+        router.push('/admin');
+      } else if (user?.role === 'barber') {
+        router.push('/barber');
+      } else {
+        router.push('/dashboard/appointments');
+      }
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, user, router]);
 
-  const handleLogin = (role: 'customer' | 'admin' | 'barber') => {
-    login(role);
-    if (role === 'admin') {
-      router.push('/admin');
-    } else if (role === 'barber') {
-      router.push('/barber');
-    } else {
-      router.push('/dashboard/appointments');
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    try {
+      const loggedInUser = await login(email, password);
+       if (loggedInUser.role === 'admin') {
+        router.push('/admin');
+      } else if (loggedInUser.role === 'barber') {
+        router.push('/barber');
+      } else {
+        router.push('/dashboard/appointments');
+      }
+    } catch (err: any) {
+      setError(err.message);
+      toast({
+        title: "Erreur de connexion",
+        description: err.message,
+        variant: "destructive",
+      });
     }
   };
 
   return (
     <div className="container flex items-center justify-center min-h-[calc(100vh-10rem)] py-12">
       <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl font-headline">Connexion</CardTitle>
-          <CardDescription>
-            Entrez votre e-mail ci-dessous pour vous connecter à votre compte. Pour cette démo, vous pouvez vous connecter en tant que client, coiffeur ou administrateur.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="email">E-mail</Label>
-            <Input id="email" type="email" placeholder="m@example.com" defaultValue="demo@example.com" disabled />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Mot de passe</Label>
-            <Input id="password" type="password" defaultValue="password" disabled />
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <Button className="w-full" onClick={() => handleLogin('customer')}>
-            Se connecter en tant que Client
-          </Button>
-           <Button className="w-full" variant="secondary" onClick={() => handleLogin('barber')}>
-            Se connecter en tant que Coiffeur
-          </Button>
-          <Button className="w-full" variant="outline" onClick={() => handleLogin('admin')}>
-            Se connecter en tant qu'Admin
-          </Button>
-        </CardFooter>
+        <form onSubmit={handleLogin}>
+          <CardHeader>
+            <CardTitle className="text-2xl font-headline">Connexion</CardTitle>
+            <CardDescription>
+              Entrez votre e-mail ci-dessous pour vous connecter à votre compte.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="email">E-mail</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="password">Mot de passe</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+          </CardContent>
+          <CardFooter className="flex flex-col gap-4">
+            <Button className="w-full" type="submit">
+              Se connecter
+            </Button>
+            <div className="text-center text-sm text-muted-foreground">
+              <p>Ou utilisez un compte de démonstration :</p>
+              <Button variant="link" size="sm" onClick={() => { setEmail('client@test.com'); setPassword('password'); }}>Client</Button>
+              |
+              <Button variant="link" size="sm" onClick={() => { setEmail('coiffeur@test.com'); setPassword('password'); }}>Coiffeur</Button>
+              |
+              <Button variant="link" size="sm" onClick={() => { setEmail('admin@test.com'); setPassword('password'); }}>Admin</Button>
+            </div>
+          </CardFooter>
+        </form>
       </Card>
     </div>
   );

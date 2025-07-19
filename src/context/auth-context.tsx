@@ -1,18 +1,22 @@
+
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { users as staticUsers } from '@/lib/data';
+import { getUsers } from '@/lib/firebase/users';
 
 export interface User {
   id: string;
   name: string;
   email: string;
   role: 'customer' | 'admin' | 'barber';
+  // NOTE: In a real app, you would never store the password, even hashed, on the client.
+  // This is for demonstration purposes only.
+  password?: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (role: 'customer' | 'admin' | 'barber') => void;
+  login: (email: string, pass: string) => Promise<User>;
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
@@ -32,12 +36,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const login = (role: 'customer' | 'admin' | 'barber') => {
-    // We find the first user that matches the role for this demo
-    const userToLogin = staticUsers.find(u => u.role === role);
-    if (userToLogin) {
+  const login = async (email: string, pass: string): Promise<User> => {
+    const allUsers = await getUsers();
+    const userToLogin = allUsers.find(u => u.email === email);
+
+    // IMPORTANT: This is a simplified password check for demo purposes.
+    // In a production application, you should use a secure authentication provider
+    // (like Firebase Authentication) and never handle plaintext passwords.
+    if (userToLogin && userToLogin.password === pass) {
       setUser(userToLogin);
       localStorage.setItem('user', JSON.stringify(userToLogin));
+      return userToLogin;
+    } else {
+      throw new Error("Les informations d'identification sont invalides.");
     }
   };
 

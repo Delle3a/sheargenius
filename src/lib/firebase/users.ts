@@ -12,6 +12,7 @@ const toUser = (doc: DocumentData): User => {
         name: data.name,
         email: data.email,
         role: data.role,
+        password: data.password, // For demo purposes
     };
 };
 
