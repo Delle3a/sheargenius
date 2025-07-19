@@ -15,53 +15,74 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
+import { Menu } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useState } from "react";
+
+const NavLink = ({ href, children, onClick }: { href: string, children: React.ReactNode, onClick?: () => void }) => (
+  <Link 
+    href={href}
+    onClick={onClick}
+    className="flex items-center text-lg font-medium text-muted-foreground hover:text-foreground md:text-sm"
+  >
+    {children}
+  </Link>
+);
+
 
 export function SiteHeader() {
   const { isAuthenticated, user, logout, isAdmin, isBarber } = useAuth();
   const router = useRouter();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
     router.push('/');
+    closeSheet();
   };
+
+  const closeSheet = () => setIsSheetOpen(false);
+
+  const renderNavLinks = () => (
+    <>
+      {isAuthenticated && !isAdmin && !isBarber && (
+        <>
+          <NavLink href="/book" onClick={closeSheet}>Réserver maintenant</NavLink>
+          <NavLink href="/dashboard/appointments" onClick={closeSheet}>Mes rendez-vous</NavLink>
+        </>
+      )}
+      {!isAuthenticated && (
+        <NavLink href="/book" onClick={closeSheet}>Réserver maintenant</NavLink>
+      )}
+      {isAdmin && (
+        <NavLink href="/admin" onClick={closeSheet}>Panneau d'administration</NavLink>
+      )}
+      {isBarber && (
+        <NavLink href="/barber" onClick={closeSheet}>Mon horaire</NavLink>
+      )}
+    </>
+  );
 
   return (
     <header className="bg-card sticky top-0 z-40 w-full border-b">
-      <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
-        <div className="flex gap-6 md:gap-10">
-          <Link href="/" className="flex items-center space-x-2">
+      <div className="container flex h-16 items-center justify-between">
+        <div className="flex items-center gap-6 md:gap-10">
+          <Link href="/" className="flex items-center space-x-2" onClick={closeSheet}>
             <BarberPole className="h-6 w-6 text-primary" />
             <span className="inline-block font-bold font-headline text-lg">Shear Genius</span>
           </Link>
           <nav className="hidden md:flex gap-6">
-            {isAuthenticated && !isAdmin && !isBarber && (
-              <>
-                <Link href="/book" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-                  Réserver maintenant
-                </Link>
-                <Link href="/dashboard/appointments" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-                  Mes rendez-vous
-                </Link>
-              </>
-            )}
-            {!isAuthenticated && (
-              <Link href="/book" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-                  Réserver maintenant
-              </Link>
-            )}
-            {isAdmin && (
-              <Link href="/admin" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-                Panneau d'administration
-              </Link>
-            )}
-            {isBarber && (
-              <Link href="/barber" className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground">
-                Mon horaire
-              </Link>
-            )}
+            {renderNavLinks()}
           </nav>
         </div>
-        <div className="flex flex-1 items-center justify-end space-x-2">
+        
+        <div className="flex items-center gap-2">
           {isAuthenticated ? (
              <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -95,7 +116,7 @@ export function SiteHeader() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-             <nav className="flex items-center gap-2">
+             <nav className="hidden md:flex items-center gap-2">
                 <Button variant="ghost" asChild>
                     <Link href="/login">Connexion</Link>
                 </Button>
@@ -104,6 +125,34 @@ export function SiteHeader() {
                 </Button>
             </nav>
           )}
+
+          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Ouvrir le menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right">
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <nav className="flex flex-col gap-6 pt-8">
+                {renderNavLinks()}
+                <hr />
+                {!isAuthenticated && (
+                   <div className="flex flex-col gap-4">
+                     <Button variant="outline" asChild onClick={closeSheet}>
+                       <Link href="/login">Connexion</Link>
+                     </Button>
+                     <Button asChild onClick={closeSheet}>
+                       <Link href="/signup">S'inscrire</Link>
+                     </Button>
+                   </div>
+                )}
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>

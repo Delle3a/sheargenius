@@ -29,16 +29,16 @@ export default async function Home() {
         <section className="w-full py-12 md:py-24 lg:py-32 bg-card">
           <div className="container px-4 md:px-6">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
-              <div className="flex flex-col justify-center space-y-4">
+              <div className="flex flex-col justify-center space-y-4 text-center lg:text-left">
                 <div className="space-y-2">
                   <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline">
                     Barbier Shear Genius
                   </h1>
-                  <p className="max-w-[600px] text-muted-foreground md:text-xl">
+                  <p className="max-w-[600px] text-muted-foreground md:text-xl mx-auto lg:mx-0">
                     Découvrez l'art du toilettage. Coupes de précision, rasages classiques et une atmosphère intemporelle. Prenez votre rendez-vous aujourd'hui.
                   </p>
                 </div>
-                <div className="flex flex-col gap-2 min-[400px]:flex-row">
+                <div className="flex flex-col gap-2 min-[400px]:flex-row justify-center lg:justify-start">
                   <HeroActionButton />
                 </div>
               </div>
@@ -65,7 +65,7 @@ export default async function Home() {
                 </p>
               </div>
             </div>
-            <div className="mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 pt-12">
+            <div className="mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pt-12">
               {staticServices.map((service) => (
                 <Card key={service.id} className="text-center overflow-hidden">
                   <CardHeader className="p-0">
@@ -102,7 +102,7 @@ export default async function Home() {
                 </p>
               </div>
             </div>
-            <div className="mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 pt-12">
+            <div className="mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pt-12">
               {barbers.map((barber) => (
                 <Card key={barber.id} className="text-center overflow-hidden">
                    <div className="bg-muted h-32 flex items-end justify-center">
