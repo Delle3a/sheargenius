@@ -3,7 +3,7 @@
 // Usage: npm run db:seed
 
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, writeBatch, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, writeBatch, getDocs, doc } from 'firebase/firestore';
 import { services as initialServices, barbers as initialBarbers } from '../src/lib/data';
 
 // IMPORTANT: This script uses the same Firebase config as the app.
@@ -35,7 +35,7 @@ async function seedServices() {
   initialServices.forEach(service => {
     // We don't want to use the hardcoded ID from the data file
     const { id, ...serviceData } = service;
-    const docRef = collection(db, 'services').doc();
+    const docRef = doc(collection(db, 'services'));
     batch.set(docRef, serviceData);
   });
 
@@ -55,7 +55,7 @@ async function seedBarbers() {
   initialBarbers.forEach(barber => {
     // We don't want to use the hardcoded ID from the data file
     const { id, ...barberData } = barber;
-    const docRef = collection(db, 'barbers').doc();
+    const docRef = doc(collection(db, 'barbers'));
     batch.set(docRef, barberData);
   });
 
