@@ -3,15 +3,19 @@
 
 import nodemailer from 'nodemailer';
 
-const transporter = nodemailer.createTransport({
+const user = process.env.EMAIL_SERVER_USER;
+const pass = process.env.EMAIL_SERVER_PASSWORD;
+
+// We only initialize the transporter if the credentials are provided
+const transporter = user && pass ? nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
     secure: true, // use SSL
     auth: {
-        user: process.env.EMAIL_SERVER_USER,
-        pass: process.env.EMAIL_SERVER_PASSWORD,
+        user: user,
+        pass: pass,
     },
-});
+}) : null;
 
 interface SendConfirmationEmailParams {
     to: string;
@@ -20,10 +24,16 @@ interface SendConfirmationEmailParams {
 }
 
 export async function sendConfirmationEmail({ to, name, token }: SendConfirmationEmailParams) {
+    if (!transporter) {
+        console.warn("Email server not configured. Skipping sending real email.");
+        // Return a flag indicating that the email was not sent
+        return { emailSent: false };
+    }
+
     const confirmationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/signup/confirm?token=${token}`;
 
     const mailOptions = {
-        from: `Shear Genius <${process.env.EMAIL_SERVER_USER}>`,
+        from: `Shear Genius <${user}>`,
         to,
         subject: 'Confirmez votre compte Shear Genius',
         html: `
@@ -37,6 +47,7 @@ export async function sendConfirmationEmail({ to, name, token }: SendConfirmatio
     try {
         await transporter.sendMail(mailOptions);
         console.log('Confirmation email sent to:', to);
+        return { emailSent: true };
     } catch (error) {
         console.error('Error sending confirmation email:', error);
         // In a real app, you'd want more robust error handling, perhaps re-queueing the email.

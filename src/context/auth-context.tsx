@@ -21,7 +21,7 @@ export interface User {
 interface AuthContextType {
   user: User | null;
   login: (email: string, pass: string) => Promise<User>;
-  signup: (name: string, email: string, pass: string) => Promise<Omit<User, 'password'>>;
+  signup: (name: string, email: string, pass: string) => Promise<{ user: Omit<User, 'password'>, emailSent: boolean }>;
   logout: () => void;
   isAuthenticated: boolean | null; // null represents a loading state
   isAdmin: boolean;
@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return userToStore;
   };
 
-  const signup = async (name: string, email: string, pass:string): Promise<Omit<User, 'password'>> => {
+  const signup = async (name: string, email: string, pass:string): Promise<{ user: Omit<User, 'password'>, emailSent: boolean }> => {
     const allUsers = await getUsers();
     const existingUser = allUsers.find(u => u.email === email);
     if (existingUser) {
@@ -88,14 +88,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const createdUser = await addUser(newUser);
     
     // Send the confirmation email
-    await sendConfirmationEmail({ 
+    const { emailSent } = await sendConfirmationEmail({ 
         to: createdUser.email, 
         name: createdUser.name, 
         token: verificationToken 
     });
 
     const { password, ...userToReturn } = createdUser;
-    return userToReturn;
+    return { user: userToReturn, emailSent };
   };
 
 

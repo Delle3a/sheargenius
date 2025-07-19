@@ -40,9 +40,17 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      await signup(name, email, password);
-      // Instead of logging in, redirect to the confirmation page
-      router.push(`/signup/confirm`);
+      const { emailSent } = await signup(name, email, password);
+      // If email was sent, we don't pass the token. The user must use the link in their email.
+      // If email was not sent (fallback), we pass the token to simulate the click.
+      const user = await (await fetch(`/api/get-user-by-email?email=${email}`)).json();
+
+      const redirectUrl = emailSent 
+        ? `/signup/confirm`
+        : `/signup/confirm?token=${user.verificationToken}`;
+        
+      router.push(redirectUrl);
+
     } catch (err: any) {
       setError(err.message);
       toast({

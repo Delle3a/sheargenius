@@ -42,11 +42,16 @@ function ConfirmEmailContent() {
           await updateUser(userToVerify.id, { isVerified: true, verificationToken: '' });
 
           setStatus('success');
-          setMessage("Compte vérifié avec succès ! Vous pouvez maintenant vous connecter.");
+          setMessage("Compte vérifié avec succès ! Vous serez redirigé(e) vers la page de connexion.");
           toast({
             title: "Compte confirmé !",
             description: "Vous pouvez maintenant vous connecter.",
           });
+          
+          setTimeout(() => {
+            router.push('/login');
+          }, 2000);
+
         } catch (error) {
           console.error("Error confirming account: ", error);
           setStatus('error');
@@ -62,45 +67,44 @@ function ConfirmEmailContent() {
     }
   }, [token, toast, router]);
 
-  if (token) {
+  // This part is shown if the user navigates to /signup/confirm directly
+  if (!token) {
     return (
       <div className="container flex items-center justify-center min-h-[calc(100vh-10rem)] py-12">
         <Card className="w-full max-w-md text-center">
           <CardHeader className="items-center">
-            {status === 'loading' && <Loader2 className="h-16 w-16 text-primary animate-spin" />}
-            {status === 'success' && <MailCheck className="h-16 w-16 text-green-500" />}
-            {status === 'error' && <AlertCircle className="h-16 w-16 text-destructive" />}
-            <CardTitle className="text-2xl font-headline">Vérification du compte</CardTitle>
+            <MailCheck className="h-16 w-16 text-primary" />
+            <CardTitle className="text-2xl font-headline">Confirmez votre adresse e-mail</CardTitle>
+            <CardDescription>
+              Nous avons envoyé un e-mail de confirmation à l'adresse que vous avez fournie. Veuillez consulter votre boîte de réception et cliquer sur le lien pour activer votre compte.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col items-center gap-4">
-            <p className="text-lg">{message}</p>
-            {status === 'success' && (
-              <Button asChild>
-                <Link href="/login">Aller à la page de connexion</Link>
-              </Button>
-            )}
-             {status === 'error' && (
-              <Button asChild variant="secondary">
-                <Link href="/signup">Retour à l'inscription</Link>
-              </Button>
-            )}
-          </CardContent>
         </Card>
       </div>
     );
   }
 
-  // This part is shown if the user navigates to /signup/confirm directly
+  // This part is shown when a token is present in the URL
   return (
     <div className="container flex items-center justify-center min-h-[calc(100vh-10rem)] py-12">
       <Card className="w-full max-w-md text-center">
         <CardHeader className="items-center">
-          <MailCheck className="h-16 w-16 text-primary" />
-          <CardTitle className="text-2xl font-headline">Confirmez votre adresse e-mail</CardTitle>
-          <CardDescription>
-            Nous avons envoyé un e-mail de confirmation à l'adresse que vous avez fournie. Veuillez consulter votre boîte de réception et cliquer sur le lien pour activer votre compte.
-          </CardDescription>
+          {status === 'loading' && <Loader2 className="h-16 w-16 text-primary animate-spin" />}
+          {status === 'success' && <MailCheck className="h-16 w-16 text-green-500" />}
+          {status === 'error' && <AlertCircle className="h-16 w-16 text-destructive" />}
+          <CardTitle className="text-2xl font-headline">Vérification du compte</CardTitle>
         </CardHeader>
+        <CardContent className="flex flex-col items-center gap-4">
+          <p className="text-lg">{message || 'Vérification de votre jeton...'}</p>
+          {status === 'success' && (
+            <Button onClick={() => router.push('/login')}>Aller à la page de connexion</Button>
+          )}
+           {status === 'error' && (
+            <Button asChild variant="secondary">
+              <Link href="/signup">Retour à l'inscription</Link>
+            </Button>
+          )}
+        </CardContent>
       </Card>
     </div>
   );
@@ -108,7 +112,7 @@ function ConfirmEmailContent() {
 
 export default function ConfirmEmailPage() {
     return (
-        <Suspense fallback={<div>Chargement...</div>}>
+        <Suspense fallback={<div className="container flex items-center justify-center min-h-[calc(100vh-10rem)] py-12"><Loader2 className="h-16 w-16 text-primary animate-spin" /></div>}>
             <ConfirmEmailContent />
         </Suspense>
     )
