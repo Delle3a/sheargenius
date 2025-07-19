@@ -41,7 +41,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       // If JSON parsing fails, assume not authenticated
+      console.error("Failed to parse user from localStorage", error);
       setIsAuthenticated(false);
+      localStorage.removeItem('user');
     }
   }, []);
 
@@ -50,10 +52,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const userToLogin = allUsers.find(u => u.email === email);
 
     if (userToLogin && userToLogin.password === pass) {
-      setUser(userToLogin);
+      const userToStore = { ...userToLogin };
+      // Do not store password in state or local storage
+      delete userToStore.password; 
+
+      setUser(userToStore);
       setIsAuthenticated(true);
-      localStorage.setItem('user', JSON.stringify(userToLogin));
-      return userToLogin;
+      localStorage.setItem('user', JSON.stringify(userToStore));
+      return userToStore;
     } else {
       throw new Error("Les informations d'identification sont invalides.");
     }

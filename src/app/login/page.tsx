@@ -59,6 +59,14 @@ export default function LoginPage() {
     }
   };
 
+  if (isAuthenticated === null || isAuthenticated === true) {
+    return (
+      <div className="container flex items-center justify-center min-h-[calc(100vh-10rem)] py-12">
+        Chargement...
+      </div>
+    );
+  }
+
   return (
     <div className="container flex items-center justify-center min-h-[calc(100vh-10rem)] py-12">
       <Card className="w-full max-w-sm">

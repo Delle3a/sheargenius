@@ -179,7 +179,7 @@ export default function BookAppointmentPage() {
   const serviceDetails = services.find(s => s.id === selectedService);
   const barberDetails = barbers.find(b => b.id === selectedBarber);
 
-  if (loading) {
+  if (loading || isAuthenticated === null) {
     return (
        <div className="container py-12 text-center">
          <p>Chargement...</p>
