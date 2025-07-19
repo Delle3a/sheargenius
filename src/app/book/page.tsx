@@ -15,10 +15,11 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { services as staticServices, availableTimeSlots, bookings } from "@/lib/data";
+import { availableTimeSlots } from "@/lib/data";
 import type { Booking, Service, Barber } from "@/lib/data";
 import { getServices } from "@/lib/firebase/services";
 import { getBarbers } from "@/lib/firebase/barbers";
+import { addBooking, getBookings } from "@/lib/firebase/bookings";
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { CheckCircle } from "lucide-react";
@@ -30,6 +31,7 @@ export default function BookAppointmentPage() {
 
   const [services, setServices] = useState<Service[]>([]);
   const [barbers, setBarbers] = useState<Barber[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [step, setStep] = useState(1);
@@ -47,12 +49,14 @@ export default function BookAppointmentPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [servicesFromDb, barbersFromDb] = await Promise.all([
+        const [servicesFromDb, barbersFromDb, bookingsFromDb] = await Promise.all([
           getServices(),
           getBarbers(),
+          getBookings(),
         ]);
         setServices(servicesFromDb);
         setBarbers(barbersFromDb);
+        setBookings(bookingsFromDb);
       } catch (error) {
         console.error("Failed to fetch data", error);
         toast({
@@ -67,7 +71,7 @@ export default function BookAppointmentPage() {
     fetchData();
   }, [toast]);
 
-  const handleBooking = () => {
+  const handleBooking = async () => {
     if (!date || !selectedService || !selectedBarber || !selectedTime || !user) {
       toast({
         title: "Informations incomplètes",
@@ -98,24 +102,30 @@ export default function BookAppointmentPage() {
       barberToBook = freeBarbers[randomIndex].id;
     }
 
-    const newBooking: Booking = {
-      id: (bookings.length + 1).toString(),
+    const newBookingData = {
       userId: user.id,
       serviceId: selectedService,
       barberId: barberToBook,
       date: format(date, 'yyyy-MM-dd'),
       time: selectedTime,
-      status: 'upcoming'
+      status: 'upcoming' as const,
     };
     
-    bookings.push(newBooking);
-    
-    toast({
-      title: "Réservation confirmée !",
-      description: `Votre rendez-vous est fixé pour le ${format(date, 'd MMMM yyyy', { locale: fr })} à ${selectedTime}.`,
-    });
-    
-    setStep(4);
+    try {
+      const newBooking = await addBooking(newBookingData);
+      setBookings([...bookings, newBooking]);
+      toast({
+        title: "Réservation confirmée !",
+        description: `Votre rendez-vous est fixé pour le ${format(date, 'd MMMM yyyy', { locale: fr })} à ${selectedTime}.`,
+      });
+      setStep(4);
+    } catch (error) {
+       toast({
+        title: "Erreur de réservation",
+        description: "Impossible de confirmer votre réservation. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    }
   };
 
   const resetBooking = () => {
@@ -152,7 +162,7 @@ export default function BookAppointmentPage() {
       ).map(b => b.time);
       return allTimesForDay.filter(time => !barberBookings.includes(time));
     }
-  }, [date, selectedBarber, allTimesForDay, barbers]);
+  }, [date, selectedBarber, allTimesForDay, barbers, bookings]);
 
 
   const serviceDetails = services.find(s => s.id === selectedService);

@@ -4,9 +4,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
-import { bookings as allBookings, services as staticServices } from "@/lib/data";
-import type { Booking, Barber } from "@/lib/data";
+import { getBookings, updateBookingStatus } from "@/lib/firebase/bookings";
+import { getServices } from "@/lib/firebase/services";
 import { getBarbers } from "@/lib/firebase/barbers";
+import type { Booking, Barber, Service } from "@/lib/data";
 import {
   Card,
   CardContent,
@@ -46,6 +47,7 @@ export default function AppointmentsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [userBookings, setUserBookings] = useState<Booking[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [barbers, setBarbers] = useState<Barber[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -53,10 +55,15 @@ export default function AppointmentsPage() {
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/login");
-    } else {
+    } else if (user) {
       const fetchData = async () => {
         try {
-          const barbersFromDb = await getBarbers();
+          const [allBookings, servicesFromDb, barbersFromDb] = await Promise.all([
+            getBookings(),
+            getServices(),
+            getBarbers()
+          ]);
+          setServices(servicesFromDb);
           setBarbers(barbersFromDb);
           setUserBookings(allBookings.filter((b) => b.userId === user?.id));
         } catch(e) {
@@ -73,16 +80,27 @@ export default function AppointmentsPage() {
     }
   }, [isAuthenticated, user, router, toast]);
 
-  const handleCancel = (bookingId: string) => {
-    setUserBookings(
-      userBookings.map((b) =>
-        b.id === bookingId ? { ...b, status: "cancelled" } : b
-      )
+  const handleCancel = async (bookingId: string) => {
+    const originalBookings = [...userBookings];
+    const updatedBookings = userBookings.map((b) =>
+      b.id === bookingId ? { ...b, status: "cancelled" as const } : b
     );
-    toast({
-      title: "Rendez-vous annulé",
-      description: "Votre rendez-vous a été annulé avec succès.",
-    });
+    setUserBookings(updatedBookings);
+    
+    try {
+        await updateBookingStatus(bookingId, 'cancelled');
+        toast({
+          title: "Rendez-vous annulé",
+          description: "Votre rendez-vous a été annulé avec succès.",
+        });
+    } catch(error) {
+        setUserBookings(originalBookings);
+        toast({
+          title: "Erreur",
+          description: "Impossible d'annuler le rendez-vous.",
+          variant: "destructive",
+        });
+    }
   };
 
   const upcomingBookings = userBookings.filter(
@@ -105,7 +123,7 @@ export default function AppointmentsPage() {
   }
 
   const AppointmentCard = ({ booking }: { booking: Booking }) => {
-    const service = staticServices.find((s) => s.id === booking.serviceId);
+    const service = services.find((s) => s.id === booking.serviceId);
     const barber = barbers.find((b) => b.id === booking.barberId);
 
     return (

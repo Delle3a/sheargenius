@@ -18,8 +18,10 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { bookings, services as staticServices, users } from "@/lib/data"
-import type { Barber } from "@/lib/data";
+import { users } from "@/lib/data"
+import type { Booking, Service, Barber } from "@/lib/data";
+import { getBookings } from "@/lib/firebase/bookings";
+import { getServices } from "@/lib/firebase/services";
 import { getBarbers } from "@/lib/firebase/barbers";
 import { DollarSign, Users, Calendar, Scissors } from "lucide-react"
 import {
@@ -42,33 +44,41 @@ const statusTranslations: { [key in 'upcoming' | 'completed' | 'cancelled'] : st
 
 
 export default function AdminDashboardPage() {
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [barbers, setBarbers] = useState<Barber[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchBarbersData = async () => {
+    const fetchData = async () => {
       try {
-        const barbersFromDb = await getBarbers();
+         const [bookingsFromDb, servicesFromDb, barbersFromDb] = await Promise.all([
+          getBookings(),
+          getServices(),
+          getBarbers(),
+        ]);
+        setBookings(bookingsFromDb);
+        setServices(servicesFromDb);
         setBarbers(barbersFromDb);
       } catch (error) {
-        console.error("Error fetching barbers: ", error);
+        console.error("Error fetching data: ", error);
         toast({
             title: "Erreur",
-            description: "Impossible de charger les coiffeurs.",
+            description: "Impossible de charger les données du tableau de bord.",
             variant: "destructive",
         });
       } finally {
         setLoading(false);
       }
     };
-    fetchBarbersData();
+    fetchData();
   }, [toast]);
 
   const totalRevenue = bookings
     .filter(b => b.status === 'completed')
     .reduce((acc, booking) => {
-      const service = staticServices.find(s => s.id === booking.serviceId);
+      const service = services.find(s => s.id === booking.serviceId);
       return acc + (service?.price || 0);
     }, 0);
 
@@ -145,7 +155,7 @@ export default function AdminDashboardPage() {
             <Scissors className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{staticServices.length}</div>
+            <div className="text-2xl font-bold">{services.length}</div>
             <p className="text-xs text-muted-foreground">
               Total des services disponibles
             </p>

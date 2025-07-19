@@ -4,7 +4,7 @@
 
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, writeBatch, getDocs, doc } from 'firebase/firestore';
-import { services as initialServices, barbers as initialBarbers } from '../src/lib/data';
+import { services as initialServices, barbers as initialBarbers, bookings as initialBookings } from '../src/lib/data';
 
 // IMPORTANT: This script uses the same Firebase config as the app.
 // Make sure your src/lib/firebase/config.ts is correctly configured.
@@ -33,10 +33,9 @@ async function seedServices() {
 
   const batch = writeBatch(db);
   initialServices.forEach(service => {
-    // We don't want to use the hardcoded ID from the data file
-    const { id, ...serviceData } = service;
-    const docRef = doc(collection(db, 'services'));
-    batch.set(docRef, serviceData);
+    // Use the hardcoded ID from the data file to maintain relationships
+    const docRef = doc(db, 'services', service.id);
+    batch.set(docRef, service);
   });
 
   await batch.commit();
@@ -53,14 +52,32 @@ async function seedBarbers() {
 
   const batch = writeBatch(db);
   initialBarbers.forEach(barber => {
-    // We don't want to use the hardcoded ID from the data file
-    const { id, ...barberData } = barber;
-    const docRef = doc(collection(db, 'barbers'));
-    batch.set(docRef, barberData);
+     // Use the hardcoded ID from the data file to maintain relationships
+    const docRef = doc(db, 'barbers', barber.id);
+    batch.set(docRef, barber);
   });
 
   await batch.commit();
   console.log(`${initialBarbers.length} barbers have been added to the database.`);
+}
+
+async function seedBookings() {
+  const bookingsCollection = collection(db, 'bookings');
+  const snapshot = await getDocs(bookingsCollection);
+  if (!snapshot.empty) {
+    console.log('Bookings collection already contains data. Skipping seeding.');
+    return;
+  }
+
+  const batch = writeBatch(db);
+  initialBookings.forEach(booking => {
+     // Use the hardcoded ID from the data file to maintain relationships
+    const docRef = doc(db, 'bookings', booking.id);
+    batch.set(docRef, booking);
+  });
+
+  await batch.commit();
+  console.log(`${initialBookings.length} bookings have been added to the database.`);
 }
 
 async function main() {
@@ -68,6 +85,7 @@ async function main() {
   try {
     await seedServices();
     await seedBarbers();
+    await seedBookings();
     console.log('Database seeding completed successfully!');
     // The script will hang open due to the active Firestore connection.
     // We explicitly exit the process.

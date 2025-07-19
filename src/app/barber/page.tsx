@@ -3,9 +3,11 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/context/auth-context";
-import { bookings, services as staticServices, users } from "@/lib/data";
+import { getBookings, updateBookingStatus } from "@/lib/firebase/bookings";
+import { getServices } from "@/lib/firebase/services";
+import { users } from "@/lib/data";
 import { getBarbers, updateBarber } from "@/lib/firebase/barbers";
-import type { Booking, Barber } from "@/lib/data";
+import type { Booking, Barber, Service } from "@/lib/data";
 import {
   Table,
   TableBody,
@@ -44,18 +46,27 @@ export default function BarberSchedulePage() {
   const { toast } = useToast();
   const [myBookings, setMyBookings] = useState<Booking[]>([]);
   const [barberDetails, setBarberDetails] = useState<Barber | null>(null);
+  const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
       const fetchData = async () => {
         try {
-          const allBarbers = await getBarbers();
+          const [allBarbers, allBookings, allServices] = await Promise.all([
+            getBarbers(),
+            getBookings(),
+            getServices(),
+          ]);
+
           const barberData = allBarbers.find(b => b.id === user.id) ?? null;
           setBarberDetails(barberData);
           
-          const barberBookings = bookings.filter(b => b.barberId === user.id);
+          const barberBookings = allBookings.filter(b => b.barberId === user.id);
           setMyBookings(barberBookings);
+
+          setServices(allServices);
+
         } catch (error) {
             console.error("Error fetching barber data: ", error);
             toast({ title: "Erreur", description: "Impossible de charger les données du coiffeur.", variant: "destructive" });
@@ -82,13 +93,25 @@ export default function BarberSchedulePage() {
     }
   };
   
-  const handleStatusChange = (bookingId: string, status: Booking['status']) => {
+  const handleStatusChange = async (bookingId: string, status: Booking['status']) => {
+    const originalBookings = [...myBookings];
     const updatedBookings = myBookings.map(b => b.id === bookingId ? { ...b, status } : b);
     setMyBookings(updatedBookings);
     
-    const bookingIndex = bookings.findIndex(b => b.id === bookingId);
-    if (bookingIndex > -1) {
-        bookings[bookingIndex].status = status;
+    try {
+      await updateBookingStatus(bookingId, status);
+      toast({
+        title: "Statut mis à jour",
+        description: `Le rendez-vous a été marqué comme ${statusTranslations[status]}.`,
+      });
+    } catch (error) {
+      console.error("Error updating status: ", error);
+      setMyBookings(originalBookings);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le statut.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -103,7 +126,7 @@ export default function BarberSchedulePage() {
   }, [myBookings]);
 
 
-  const AppointmentsTable = ({ bookings, isUpcoming }: { bookings: Booking[], isUpcoming: boolean }) => (
+  const AppointmentsTable = ({ bookingsToShow, isUpcoming }: { bookingsToShow: Booking[], isUpcoming: boolean }) => (
      <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -116,10 +139,10 @@ export default function BarberSchedulePage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {bookings.length > 0 ? (
-              bookings.map((booking) => {
+            {bookingsToShow.length > 0 ? (
+              bookingsToShow.map((booking) => {
                 const customer = users.find((u) => u.id === booking.userId);
-                const service = staticServices.find((s) => s.id === booking.serviceId);
+                const service = services.find((s) => s.id === booking.serviceId);
                 return (
                   <TableRow key={booking.id}>
                     <TableCell className="font-medium">{customer?.name || `User ID: ${booking.userId}`}</TableCell>
@@ -200,10 +223,10 @@ export default function BarberSchedulePage() {
           <TabsTrigger value="history">Historique</TabsTrigger>
         </TabsList>
         <TabsContent value="upcoming">
-            <AppointmentsTable bookings={upcomingBookings} isUpcoming={true} />
+            <AppointmentsTable bookingsToShow={upcomingBookings} isUpcoming={true} />
         </TabsContent>
         <TabsContent value="history">
-            <AppointmentsTable bookings={pastBookings} isUpcoming={false} />
+            <AppointmentsTable bookingsToShow={pastBookings} isUpcoming={false} />
         </TabsContent>
       </Tabs>
     </div>

@@ -2,13 +2,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  bookings as initialBookings,
-  services as staticServices,
-  users,
-} from "@/lib/data";
-import type { Booking, Barber } from "@/lib/data";
+import { getBookings, updateBookingStatus } from "@/lib/firebase/bookings";
+import { getServices } from "@/lib/firebase/services";
 import { getBarbers } from "@/lib/firebase/barbers";
+import type { Booking, Service, Barber, User } from "@/lib/data";
+import { users } from "@/lib/data"; // Still using mock users for now
 import {
   Table,
   TableBody,
@@ -38,37 +36,56 @@ const statusTranslations: { [key in Booking['status']]: string } = {
 };
 
 export default function AdminAppointmentsPage() {
-  const [bookings, setBookings] = useState<Booking[]>(initialBookings);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [barbers, setBarbers] = useState<Barber[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchBarbersData = async () => {
+    const fetchData = async () => {
       try {
-        const barbersFromDb = await getBarbers();
+        const [bookingsFromDb, servicesFromDb, barbersFromDb] = await Promise.all([
+          getBookings(),
+          getServices(),
+          getBarbers(),
+        ]);
+        setBookings(bookingsFromDb);
+        setServices(servicesFromDb);
         setBarbers(barbersFromDb);
       } catch (error) {
-        console.error("Error fetching barbers: ", error);
+        console.error("Error fetching data: ", error);
         toast({
-            title: "Erreur",
-            description: "Impossible de charger les coiffeurs.",
-            variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de charger les données.",
+          variant: "destructive",
         });
       } finally {
         setLoading(false);
       }
     };
-    fetchBarbersData();
+    fetchData();
   }, [toast]);
-  
 
-  const handleStatusChange = (bookingId: string, status: Booking['status']) => {
+  const handleStatusChange = async (bookingId: string, status: Booking['status']) => {
+    const originalBookings = [...bookings];
     const updatedBookings = bookings.map(b => b.id === bookingId ? { ...b, status } : b);
     setBookings(updatedBookings);
-    const bookingIndex = initialBookings.findIndex(b => b.id === bookingId);
-    if (bookingIndex > -1) {
-      initialBookings[bookingIndex].status = status;
+
+    try {
+      await updateBookingStatus(bookingId, status);
+      toast({
+        title: "Statut mis à jour",
+        description: `Le rendez-vous a été marqué comme ${statusTranslations[status]}.`,
+      });
+    } catch (error) {
+      console.error("Error updating status: ", error);
+      setBookings(originalBookings);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le statut.",
+        variant: "destructive",
+      });
     }
   };
   
@@ -96,7 +113,7 @@ export default function AdminAppointmentsPage() {
           <TableBody>
             {bookings.map((booking) => {
               const user = users.find((u) => u.id === booking.userId);
-              const service = staticServices.find((s) => s.id === booking.serviceId);
+              const service = services.find((s) => s.id === booking.serviceId);
               const barber = barbers.find((b) => b.id === booking.barberId);
               return (
                 <TableRow key={booking.id}>
