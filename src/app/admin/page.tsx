@@ -224,7 +224,7 @@ export default function AdminDashboardPage() {
                         const user = users.find(u => u.id === booking.userId);
                         return (
                             <TableRow key={booking.id}>
-                                <TableCell>{user?.name}</TableCell>
+                                <TableCell>{user?.name || "N/A"}</TableCell>
                                 <TableCell>{format(new Date(booking.date), "d MMM", { locale: fr })} - {booking.time}</TableCell>
                                 <TableCell>
                                     <Badge variant="default">

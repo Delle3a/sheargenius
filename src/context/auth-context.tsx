@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { users } from '@/lib/data';
+import { users as staticUsers } from '@/lib/data';
 
 export interface User {
   id: string;
@@ -33,7 +33,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = (role: 'customer' | 'admin' | 'barber') => {
-    const userToLogin = users.find(u => u.role === role);
+    // We find the first user that matches the role for this demo
+    const userToLogin = staticUsers.find(u => u.role === role);
     if (userToLogin) {
       setUser(userToLogin);
       localStorage.setItem('user', JSON.stringify(userToLogin));

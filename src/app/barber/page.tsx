@@ -54,6 +54,9 @@ export default function BarberSchedulePage() {
     if (user) {
       const fetchData = async () => {
         try {
+          // Use the user's ID which should correspond to the barber's ID
+          const barberId = user.id;
+
           const [allBarbers, allBookings, allServices, allUsers] = await Promise.all([
             getBarbers(),
             getBookings(),
@@ -61,10 +64,10 @@ export default function BarberSchedulePage() {
             getUsers(),
           ]);
 
-          const barberData = allBarbers.find(b => b.id === user.id) ?? null;
+          const barberData = allBarbers.find(b => b.id === barberId) ?? null;
           setBarberDetails(barberData);
           
-          const barberBookings = allBookings.filter(b => b.barberId === user.id);
+          const barberBookings = allBookings.filter(b => b.barberId === barberId);
           setMyBookings(barberBookings);
 
           setServices(allServices);
@@ -149,7 +152,7 @@ export default function BarberSchedulePage() {
                 return (
                   <TableRow key={booking.id}>
                     <TableCell className="font-medium">{customer?.name || `User ID: ${booking.userId}`}</TableCell>
-                    <TableCell>{service?.name}</TableCell>
+                    <TableCell>{service?.name || "N/A"}</TableCell>
                     <TableCell>
                       {format(new Date(booking.date), "d MMM yyyy", { locale: fr })} - {booking.time}
                     </TableCell>

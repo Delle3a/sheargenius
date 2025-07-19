@@ -23,7 +23,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-async function seedCollection(collectionName: string, data: any[]) {
+async function seedCollection(collectionName: string, data: any[], idField = 'id') {
     const collectionRef = collection(db, collectionName);
     const snapshot = await getDocs(collectionRef);
     if (!snapshot.empty) {
@@ -33,8 +33,10 @@ async function seedCollection(collectionName: string, data: any[]) {
     
     const batch = writeBatch(db);
     data.forEach(item => {
-        const docRef = doc(db, collectionName, item.id);
-        batch.set(docRef, item);
+        // Use the hardcoded ID from the data file to maintain relationships
+        const docRef = doc(db, collectionName, item[idField]);
+        const { [idField]: id, ...rest } = item;
+        batch.set(docRef, rest);
     });
     
     await batch.commit();
