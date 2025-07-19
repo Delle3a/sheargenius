@@ -6,13 +6,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { services } from "@/lib/data";
 import { getBarbers } from "@/lib/firebase/barbers";
 import { getServices } from "@/lib/firebase/services";
-import { BarberPole } from "@/components/icons";
 import { Phone, MapPin, Mail } from "lucide-react";
 import { HeroActionButton } from "@/components/hero-action-button";
 
 export default async function Home() {
   const staticServices = await getServices();
   const barbers = await getBarbers();
+
+  const getServiceHint = (serviceId: string) => {
+    switch (serviceId) {
+      case 'service-1': return 'classic haircut';
+      case 'service-2': return 'beard trim';
+      case 'service-3': return 'hot towel shave';
+      case 'service-4': return 'premium grooming';
+      default: return 'barber service';
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -66,7 +75,7 @@ export default async function Home() {
                       width={300}
                       height={200}
                       className="object-cover w-full aspect-[3/2]"
-                      data-ai-hint={service.id === 'service-2' ? 'beard trim' : 'classic haircut'}
+                      data-ai-hint={getServiceHint(service.id)}
                     />
                     <div className="p-6">
                       <CardTitle className="font-headline">{service.name}</CardTitle>
@@ -98,7 +107,7 @@ export default async function Home() {
                 <Card key={barber.id} className="text-center overflow-hidden">
                    <div className="bg-muted h-32 flex items-end justify-center">
                       <Avatar className="w-24 h-24 border-4 border-background -mb-12">
-                        <AvatarImage src={barber.avatarUrl} alt={barber.name} data-ai-hint={barber.id === '2' ? 'female barber' : 'male barber'} />
+                        <AvatarImage src={barber.avatarUrl} alt={barber.name} data-ai-hint={barber.id === 'barber-2' ? 'female barber' : 'male barber'} />
                         <AvatarFallback>{barber.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                    </div>
