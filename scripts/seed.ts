@@ -1,4 +1,3 @@
-
 // This script is used to seed the Firestore database with initial data.
 // Usage: npm run db:seed
 
@@ -23,7 +22,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-async function seedCollection(collectionName: string, data: any[], idField: string = 'id') {
+async function seedCollection(collectionName: string, data: any[]) {
     const collectionRef = collection(db, collectionName);
     const snapshot = await getDocs(collectionRef);
     if (!snapshot.empty) {
@@ -33,10 +32,14 @@ async function seedCollection(collectionName: string, data: any[], idField: stri
 
     const batch = writeBatch(db);
     data.forEach(item => {
-        const docId = item[idField];
+        const docId = item.id;
+        if (!docId) {
+            console.warn(`Skipping item in ${collectionName} due to missing id:`, item);
+            return;
+        }
         const docRef = doc(db, collectionName, docId);
         // Create a new object without the id field
-        const { [idField]: _, ...rest } = item;
+        const { id, ...rest } = item;
         batch.set(docRef, rest);
     });
 
@@ -47,10 +50,10 @@ async function seedCollection(collectionName: string, data: any[], idField: stri
 async function main() {
   console.log('Starting database seed...');
   try {
-    await seedCollection('services', initialServices, 'id');
-    await seedCollection('barbers', initialBarbers, 'id');
-    await seedCollection('users', initialUsers, 'id');
-    await seedCollection('bookings', initialBookings, 'id');
+    await seedCollection('services', initialServices);
+    await seedCollection('barbers', initialBarbers);
+    await seedCollection('users', initialUsers);
+    await seedCollection('bookings', initialBookings);
 
     console.log('Database seeding completed successfully!');
     // The script will hang open due to the active Firestore connection.

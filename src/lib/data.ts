@@ -32,22 +32,23 @@ export const usersWithPasswords: User[] = [
     { id: 'user-customer-1', name: 'Jean Dupont', email: 'client@test.com', role: 'customer', password: 'password' },
 ];
 
-export const services: Omit<Service, 'id' | 'price' | 'duration'> & { name: string; price: number; duration: number }[] = [
-  { name: 'Coupe Classique', price: 30, duration: 30 },
-  { name: 'Taille de la barbe', price: 20, duration: 15 },
-  { name: 'Rasage à la serviette chaude', price: 45, duration: 45 },
-  { name: 'Le Grand Jeu', price: 65, duration: 60 },
+export const services: Service[] = [
+  { id: 'service-1', name: 'Coupe Classique', price: 30, duration: 30 },
+  { id: 'service-2', name: 'Taille de la barbe', price: 20, duration: 15 },
+  { id: 'service-3', name: 'Rasage à la serviette chaude', price: 45, duration: 45 },
+  { id: 'service-4', name: 'Le Grand Jeu', price: 65, duration: 60 },
 ];
 
-export const barbers: Omit<Barber, 'id'>[] = [
-  { name: 'Alex Johnson', specialty: 'Coupes Classiques', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: true },
-  { name: 'Maria Garcia', specialty: 'Styles Modernes', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: true },
-  { name: 'Sam Chen', specialty: 'Dégradés et Rasages', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: true },
-  { name: 'James "La Lame" Miller', specialty: 'Maître Barbier', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: false },
+export const barbers: Barber[] = [
+  { id: 'barber-1', name: 'Alex Johnson', specialty: 'Coupes Classiques', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: true },
+  { id: 'barber-2', name: 'Maria Garcia', specialty: 'Styles Modernes', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: true },
+  { id: 'barber-3', name: 'Sam Chen', specialty: 'Dégradés et Rasages', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: true },
+  { id: 'barber-4', name: 'James "La Lame" Miller', specialty: 'Maître Barbier', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: false },
 ];
 
-export const bookings: Omit<Booking, 'id'>[] = [
+export const bookings: Booking[] = [
   {
+    id: 'booking-1',
     userId: 'user-customer-1',
     serviceId: 'service-1',
     barberId: 'barber-2',
@@ -56,6 +57,7 @@ export const bookings: Omit<Booking, 'id'>[] = [
     status: 'upcoming',
   },
   {
+    id: 'booking-2',
     userId: 'user-customer-1',
     serviceId: 'service-3',
     barberId: 'barber-1',
