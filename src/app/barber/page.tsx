@@ -5,9 +5,9 @@ import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/context/auth-context";
 import { getBookings, updateBookingStatus } from "@/lib/firebase/bookings";
 import { getServices } from "@/lib/firebase/services";
-import { users } from "@/lib/data";
+import { getUsers } from "@/lib/firebase/users";
 import { getBarbers, updateBarber } from "@/lib/firebase/barbers";
-import type { Booking, Barber, Service } from "@/lib/data";
+import type { Booking, Barber, Service, User } from "@/lib/data";
 import {
   Table,
   TableBody,
@@ -47,16 +47,18 @@ export default function BarberSchedulePage() {
   const [myBookings, setMyBookings] = useState<Booking[]>([]);
   const [barberDetails, setBarberDetails] = useState<Barber | null>(null);
   const [services, setServices] = useState<Service[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
       const fetchData = async () => {
         try {
-          const [allBarbers, allBookings, allServices] = await Promise.all([
+          const [allBarbers, allBookings, allServices, allUsers] = await Promise.all([
             getBarbers(),
             getBookings(),
             getServices(),
+            getUsers(),
           ]);
 
           const barberData = allBarbers.find(b => b.id === user.id) ?? null;
@@ -66,6 +68,7 @@ export default function BarberSchedulePage() {
           setMyBookings(barberBookings);
 
           setServices(allServices);
+          setUsers(allUsers);
 
         } catch (error) {
             console.error("Error fetching barber data: ", error);

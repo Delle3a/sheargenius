@@ -18,11 +18,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { users } from "@/lib/data"
-import type { Booking, Service, Barber } from "@/lib/data";
+import type { Booking, Service, Barber, User } from "@/lib/data";
 import { getBookings } from "@/lib/firebase/bookings";
 import { getServices } from "@/lib/firebase/services";
 import { getBarbers } from "@/lib/firebase/barbers";
+import { getUsers } from "@/lib/firebase/users";
 import { DollarSign, Users, Calendar, Scissors } from "lucide-react"
 import {
   ChartContainer,
@@ -47,20 +47,23 @@ export default function AdminDashboardPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [barbers, setBarbers] = useState<Barber[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-         const [bookingsFromDb, servicesFromDb, barbersFromDb] = await Promise.all([
+         const [bookingsFromDb, servicesFromDb, barbersFromDb, usersFromDb] = await Promise.all([
           getBookings(),
           getServices(),
           getBarbers(),
+          getUsers(),
         ]);
         setBookings(bookingsFromDb);
         setServices(servicesFromDb);
         setBarbers(barbersFromDb);
+        setUsers(usersFromDb);
       } catch (error) {
         console.error("Error fetching data: ", error);
         toast({
