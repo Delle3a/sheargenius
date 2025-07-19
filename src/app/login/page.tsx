@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const { login, isAuthenticated, user } = useAuth();
@@ -24,8 +25,11 @@ export default function LoginPage() {
   const [email, setEmail] = useState("client@test.com");
   const [password, setPassword] = useState("password");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // This effect should only redirect if authentication is already established.
+    // The handleLogin function will manage redirects after a successful login.
     if (isAuthenticated) {
       if (user?.role === 'admin') {
         router.push('/admin');
@@ -40,8 +44,10 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
     try {
       const loggedInUser = await login(email, password);
+       // Redirect logic is now part of the successful login flow
        if (loggedInUser.role === 'admin') {
         router.push('/admin');
       } else if (loggedInUser.role === 'barber') {
@@ -56,9 +62,13 @@ export default function LoginPage() {
         description: err.message,
         variant: "destructive",
       });
+      setLoading(false); // Stop loading on error
     }
+    // No need to set loading to false on success, as the page will redirect.
   };
 
+  // While auth state is being determined, show a loading screen.
+  // Or if the user is already logged in, they will be redirected by the useEffect.
   if (isAuthenticated === null || isAuthenticated === true) {
     return (
       <div className="container flex items-center justify-center min-h-[calc(100vh-10rem)] py-12">
@@ -87,6 +97,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={loading}
               />
             </div>
             <div className="grid gap-2">
@@ -97,12 +108,14 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={loading}
               />
             </div>
             {error && <p className="text-sm font-medium text-destructive">{error}</p>}
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <Button className="w-full" type="submit">
+            <Button className="w-full" type="submit" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Se connecter
             </Button>
             <div className="text-center text-sm text-muted-foreground">
