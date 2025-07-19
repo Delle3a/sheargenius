@@ -49,12 +49,12 @@ function ConfirmEmailContent() {
           <MailCheck className="h-16 w-16 text-primary" />
           <CardTitle className="text-2xl font-headline">Confirmez votre adresse e-mail</CardTitle>
           <CardDescription>
-            Nous avons envoyé un lien de confirmation à votre adresse e-mail. Veuillez cliquer sur le lien pour activer votre compte.
+            Ceci est une confirmation d'e-mail simulée. Dans une application réelle, un lien serait envoyé à votre boîte de réception.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            (Pour cette démo, cliquez simplement sur le bouton ci-dessous pour simuler la confirmation.)
+            Cliquez sur le bouton ci-dessous pour vérifier votre compte et continuer.
           </p>
           <Button onClick={handleConfirmation}>Confirmer le compte</Button>
         </CardContent>
