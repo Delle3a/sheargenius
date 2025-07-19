@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import {
   Card,
   CardContent,
@@ -32,7 +32,7 @@ import {
   ChartLegendContent,
 } from "@/components/ui/chart"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, Tooltip, ResponsiveContainer } from "recharts"
-import { format } from "date-fns"
+import { format, subDays } from "date-fns"
 import { fr } from "date-fns/locale"
 import { useToast } from "@/hooks/use-toast"
 
@@ -75,25 +75,38 @@ export default function AdminDashboardPage() {
     fetchData();
   }, [toast]);
 
-  const totalRevenue = bookings
+  const totalRevenue = useMemo(() => {
+    return bookings
     .filter(b => b.status === 'completed')
     .reduce((acc, booking) => {
       const service = services.find(s => s.id === booking.serviceId);
       return acc + (service?.price || 0);
     }, 0);
+  }, [bookings, services]);
 
   const totalAppointments = bookings.length;
-  const upcomingAppointments = bookings.filter(b => b.status === 'upcoming');
+  const upcomingAppointments = useMemo(() => {
+    return bookings.filter(b => b.status === 'upcoming');
+  }, [bookings]);
   
-  const weeklyRevenueData = [
-      { day: "Lun", revenue: 150 },
-      { day: "Mar", revenue: 200 },
-      { day: "Mer", revenue: 250 },
-      { day: "Jeu", revenue: 180 },
-      { day: "Ven", revenue: 300 },
-      { day: "Sam", revenue: 400 },
-      { day: "Dim", revenue: 50 },
-  ];
+  const weeklyRevenueData = useMemo(() => {
+    const last7Days = Array.from({ length: 7 }, (_, i) => subDays(new Date(), i)).reverse();
+    
+    return last7Days.map(date => {
+        const dayStr = format(date, 'yyyy-MM-dd');
+        const dayName = format(date, 'eee', { locale: fr });
+        
+        const revenue = bookings
+            .filter(b => b.status === 'completed' && b.date === dayStr)
+            .reduce((acc, booking) => {
+                const service = services.find(s => s.id === booking.serviceId);
+                return acc + (service?.price || 0);
+            }, 0);
+            
+        return { day: dayName, revenue };
+    });
+  }, [bookings, services]);
+
 
   const chartConfig = {
     revenue: {
