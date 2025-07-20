@@ -38,6 +38,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
+import { addUser, getUsers } from '@/lib/firebase/users';
 
 export default function AdminBarbersPage() {
   const [barbers, setBarbers] = useState<Barber[]>([]);
@@ -95,24 +96,55 @@ export default function AdminBarbersPage() {
     } else if (avatarPreview) {
       avatarUrl = avatarPreview;
     }
+    
+    const name = formData.get('name') as string;
+    const specialty = formData.get('specialty') as string;
+    const isAvailable = formData.get('isAvailable') === 'on';
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    
 
     const barberData = {
-      name: formData.get('name') as string,
-      specialty: formData.get('specialty') as string,
-      avatarUrl: avatarUrl,
-      isAvailable: formData.get('isAvailable') === 'on',
+      name,
+      specialty,
+      avatarUrl,
+      isAvailable,
     };
 
     setLoading(true);
     try {
       if (editingBarber) {
+        // Just update the barber details, not the user account
         await updateBarber(editingBarber.id, barberData);
         setBarbers(barbers.map(b => (b.id === editingBarber.id ? { ...b, ...barberData } : b)));
         toast({ title: "Succès", description: "Coiffeur mis à jour." });
       } else {
+        // This is a new barber, so we create both the barber record and the user account
+        const allUsers = await getUsers();
+        if (allUsers.some(u => u.email === email)) {
+            toast({
+                title: "Erreur",
+                description: "Un utilisateur avec cet email existe déjà.",
+                variant: "destructive"
+            });
+            setLoading(false);
+            return;
+        }
+
         const newBarber = await addBarber(barberData);
+        
+        // The ID of the user document MUST match the ID of the barber document
+        await addUser({
+            id: newBarber.id,
+            name,
+            email,
+            password,
+            role: 'barber',
+            isVerified: true // Admins create verified accounts directly
+        });
+
         setBarbers([...barbers, newBarber]);
-        toast({ title: "Succès", description: "Coiffeur ajouté." });
+        toast({ title: "Succès", description: "Coiffeur et compte utilisateur créés." });
       }
     } catch (error) {
       console.error("Error saving barber: ", error);
@@ -131,6 +163,8 @@ export default function AdminBarbersPage() {
 
   const handleDeleteBarber = async (barberId: string) => {
     try {
+      // Note: This only deletes the barber record. Deleting the user is a separate, more complex operation.
+      // For this app, we'll leave the user account for historical data integrity.
       await deleteBarber(barberId);
       setBarbers(barbers.filter(b => b.id !== barberId));
       toast({ title: "Succès", description: "Coiffeur supprimé." });
@@ -200,7 +234,7 @@ export default function AdminBarbersPage() {
             <DialogHeader>
               <DialogTitle className="font-headline">{editingBarber ? "Modifier le coiffeur" : "Ajouter un nouveau coiffeur"}</DialogTitle>
               <DialogDescription>
-                {editingBarber ? "Mettez à jour les détails de ce coiffeur." : "Ajoutez un nouveau coiffeur à votre équipe."}
+                {editingBarber ? "Mettez à jour les détails de ce coiffeur." : "Ajoutez un nouveau coiffeur et créez son compte utilisateur."}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSaveBarber}>
@@ -213,6 +247,18 @@ export default function AdminBarbersPage() {
                   <Label htmlFor="specialty" className="text-right">Spécialité</Label>
                   <Input id="specialty" name="specialty" defaultValue={editingBarber?.specialty} className="col-span-3" required />
                 </div>
+                 {!editingBarber && (
+                    <>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="email" className="text-right">Email</Label>
+                            <Input id="email" name="email" type="email" className="col-span-3" required />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="password" className="text-right">Mot de passe</Label>
+                            <Input id="password" name="password" type="password" className="col-span-3" required />
+                        </div>
+                    </>
+                 )}
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="avatar" className="text-right">Avatar</Label>
                   <Input id="avatar" name="avatar" type="file" onChange={handleFileChange} className="col-span-3" accept="image/*" />
@@ -293,3 +339,5 @@ export default function AdminBarbersPage() {
     </div>
   );
 }
+
+    

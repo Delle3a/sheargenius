@@ -2,13 +2,11 @@
 // Usage: npm run db:seed
 
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, writeBatch, getDocs, doc } from 'firebase/firestore';
-import { services as initialServices, barbers as initialBarbers, bookings as initialBookings, usersWithPasswords as initialUsers } from '../src/lib/data';
+import { getFirestore, collection, writeBatch, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { usersWithPasswords, barbers, services, bookings } from '../src/lib/data';
 
 // IMPORTANT: This script uses the same Firebase config as the app.
 // Make sure your src/lib/firebase/config.ts is correctly configured.
-// NOTE: This is a simplified script using the client-side SDK.
-// For more robust, server-side seeding, you would typically use the Firebase Admin SDK.
 
 const firebaseConfig = {
   apiKey: "AIzaSyDxjH-4J2qZ_ePnYs1CIWOJZ0we6FODM0k",
@@ -22,14 +20,30 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-async function seedCollection(collectionName: string, data: any[]) {
+// This function will delete all documents in a collection.
+async function clearCollection(collectionName: string) {
     const collectionRef = collection(db, collectionName);
     const snapshot = await getDocs(collectionRef);
-    if (!snapshot.empty) {
-        console.log(`Collection "${collectionName}" already contains data. Skipping seeding.`);
+    if (snapshot.empty) {
+        console.log(`Collection "${collectionName}" is already empty.`);
+        return;
+    }
+    const batch = writeBatch(db);
+    snapshot.docs.forEach(doc => {
+        batch.delete(doc.ref);
+    });
+    await batch.commit();
+    console.log(`Cleared ${snapshot.size} documents from "${collectionName}".`);
+}
+
+
+async function seedCollection(collectionName: string, data: any[]) {
+    if (!data || data.length === 0) {
+        console.log(`No data provided for "${collectionName}". Skipping seeding.`);
         return;
     }
 
+    const collectionRef = collection(db, collectionName);
     const batch = writeBatch(db);
     data.forEach(item => {
         const docId = item.id;
@@ -38,7 +52,7 @@ async function seedCollection(collectionName: string, data: any[]) {
             return;
         }
         const docRef = doc(db, collectionName, docId);
-        // Create a new object without the id field
+        // Create a new object without the id field to prevent storing it in the document
         const { id, ...rest } = item;
         batch.set(docRef, rest);
     });
@@ -50,12 +64,20 @@ async function seedCollection(collectionName: string, data: any[]) {
 async function main() {
   console.log('Starting database seed...');
   try {
-    await seedCollection('services', initialServices);
-    await seedCollection('barbers', initialBarbers);
-    await seedCollection('users', initialUsers);
-    await seedCollection('bookings', initialBookings);
+    // Clear all existing data first to ensure a clean slate
+    await clearCollection('users');
+    await clearCollection('barbers');
+    await clearCollection('services');
+    await clearCollection('bookings');
 
-    console.log('Database seeding completed successfully!');
+    console.log('\nSeeding new data...');
+    // Now seed the new, clean data
+    await seedCollection('users', usersWithPasswords);
+    await seedCollection('barbers', barbers);
+    await seedCollection('services', services);
+    await seedCollection('bookings', bookings);
+
+    console.log('\nDatabase seeding completed successfully!');
     // The script will hang open due to the active Firestore connection.
     // We explicitly exit the process.
     process.exit(0);
@@ -66,3 +88,5 @@ async function main() {
 }
 
 main();
+
+    
