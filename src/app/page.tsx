@@ -13,16 +13,6 @@ export default async function Home() {
   const staticServices = await getServices();
   const barbers = await getBarbers();
 
-  const getServiceHint = (serviceId: string) => {
-    switch (serviceId) {
-      case 'service-1': return 'classic haircut';
-      case 'service-2': return 'beard trim';
-      case 'service-3': return 'hot towel shave';
-      case 'service-4': return 'premium grooming';
-      default: return 'barber service';
-    }
-  }
-
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-1">
@@ -44,7 +34,7 @@ export default async function Home() {
               </div>
               <Image
                 src="https://placehold.co/600x400.png"
-                data-ai-hint="stylish barbershop"
+                data-ai-hint="barber trimming beard"
                 width="600"
                 height="400"
                 alt="Hero"
@@ -75,7 +65,7 @@ export default async function Home() {
                       width={300}
                       height={200}
                       className="object-cover w-full aspect-[3/2]"
-                      data-ai-hint={getServiceHint(service.id)}
+                      data-ai-hint={service.name.toLowerCase()}
                     />
                     <div className="p-6">
                       <CardTitle className="font-headline">{service.name}</CardTitle>
