@@ -33,8 +33,7 @@ export default async function Home() {
                 </div>
               </div>
               <Image
-                src="https://placehold.co/600x400.png"
-                data-ai-hint="barber trimming beard"
+                src="https://lh3.googleusercontent.com/gg-dl/AJfQ9KRe8Z-wcQHFLhAL4_XbVHyPGnDoiDNRu77NJu6I7FSik3dGeEsnbPRW_OHDS2BIFR7MP9tjId4t6SYhJfA64ImhKnqPS_srb04R1rrqtzuROGSrOBajSORIyIb9xJezJhfHZedaNyDHxHrPC8iGk8qZ7pi4zv_so4o_Fo484swP5McYxQ=s1024"
                 width="600"
                 height="400"
                 alt="Hero"
@@ -65,7 +64,7 @@ export default async function Home() {
                       width={300}
                       height={200}
                       className="object-cover w-full aspect-[3/2]"
-                      data-ai-hint={service.name.toLowerCase()}
+                      data-ai-hint={service.name.toLowerCase().includes('barbe') ? 'beard trim' : service.name.toLowerCase().includes('rasage') ? 'hot towel shave' : 'classic haircut'}
                     />
                     <div className="p-6">
                       <CardTitle className="font-headline">{service.name}</CardTitle>
@@ -97,7 +96,7 @@ export default async function Home() {
                 <Card key={barber.id} className="text-center overflow-hidden">
                    <div className="bg-muted h-32 flex items-end justify-center">
                       <Avatar className="w-24 h-24 border-4 border-background -mb-12">
-                        <AvatarImage src={barber.avatarUrl} alt={barber.name} data-ai-hint={barber.id === 'barber-2' ? 'female barber' : 'male barber'} />
+                        <AvatarImage src={barber.avatarUrl} alt={barber.name} data-ai-hint={barber.id === 'barber-2' ? 'female barber' : 'male barber portrait'} />
                         <AvatarFallback>{barber.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                    </div>
