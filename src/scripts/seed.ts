@@ -39,23 +39,6 @@ async function clearCollection(collectionName: string) {
 
 
 async function seedCollection(collectionName: string, data: any[]) {
-    const collectionRef = collection(db, collectionName);
-    
-    // Check if the collection should be seeded even if it has data.
-    // For users and barbers, we'll overwrite with our seed data for consistency.
-    // For services and bookings, if the seed data is empty, we respect that.
-    const snapshot = await getDocs(collectionRef);
-    if (!snapshot.empty && data.length > 0) {
-        console.log(`Collection "${collectionName}" already contains data. Overwriting with new seed data.`);
-        // To be safe, we clear it first.
-        await clearCollection(collectionName);
-    } else if (!snapshot.empty && data.length === 0) {
-        console.log(`Collection "${collectionName}" contains data, but seed data is empty. Clearing collection.`);
-        await clearCollection(collectionName);
-        return; // Nothing more to do
-    }
-
-
     if (data.length === 0) {
         console.log(`Seed data for "${collectionName}" is empty. Skipping seeding.`);
         return;
@@ -64,6 +47,7 @@ async function seedCollection(collectionName: string, data: any[]) {
     const batch = writeBatch(db);
     data.forEach(item => {
         const { id, ...rest } = item;
+        // Use the explicit ID from the data file for the document ID
         const docRef = doc(db, collectionName, id);
         batch.set(docRef, rest);
     });
@@ -81,7 +65,7 @@ async function main() {
     await clearCollection('users');
     await clearCollection('bookings');
     
-    // Now seed with the new (mostly empty) data
+    // Now seed with the new data
     await seedCollection('services', initialServices);
     await seedCollection('barbers', initialBarbers);
     await seedCollection('users', initialUsers);

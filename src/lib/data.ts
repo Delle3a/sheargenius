@@ -26,22 +26,22 @@ export interface Booking {
   status: 'upcoming' | 'completed' | 'cancelled';
 }
 
-// NOTE: In a real app, password handling would be done securely on a server.
-// Add isVerified: true for all seed users so they can log in.
-export const usersWithPasswords: Omit<User, 'password'>[] = [
-    { id: 'user-admin', name: 'Admin User', email: 'admin@test.com', role: 'admin', isVerified: true },
-];
-
+// This array is used by the seed script to populate the database.
+// The password is included here for demo purposes so the initial login works.
+// In a real-world app, this would be handled much more securely.
 export const users: (Omit<User, 'id'> & { id: string })[] = [
-    { id: 'user-admin', name: 'Admin User', email: 'admin@test.com', role: 'admin', password: 'password', isVerified: true },
+    { id: 'user-admin', name: 'Admin User', email: 'admin@test.com', password: 'password', role: 'admin', isVerified: true },
 ];
 
+// This is an empty array for services, as requested.
 export const services: Service[] = [];
 
+// This provides one sample barber, as requested.
 export const barbers: Barber[] = [
   { id: 'barber-1', name: 'Alex Johnson', specialty: 'Coupes Classiques', avatarUrl: 'https://placehold.co/100x100.png', isAvailable: true },
 ];
 
+// This is an empty array for bookings, as requested.
 export const bookings: Booking[] = [];
 
 // 0: Sunday, 1: Monday, etc.
