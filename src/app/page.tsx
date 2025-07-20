@@ -126,11 +126,11 @@ export default async function Home() {
               </div>
             </div>
              <Image
-              src="https://placehold.co/600x400.png"
+              src="https://images.unsplash.com/photo-1599351431613-18ef1fdd27e1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxiYXJiZXJ8ZW58MHx8fHwxNzUzMDE3NzgzfDA&ixlib=rb-4.1.0&q=80&w=1080"
               width="600"
               height="400"
               alt="Map"
-              data-ai-hint="city map"
+              data-ai-hint="barbershop interior"
               className="mx-auto aspect-video overflow-hidden rounded-xl object-cover"
             />
           </div>
