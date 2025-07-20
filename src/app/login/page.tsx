@@ -121,14 +121,6 @@ export default function LoginPage() {
                 S'inscrire
               </Link>
             </div>
-            <div className="text-center text-sm text-muted-foreground">
-              <p>Ou utilisez un compte de démonstration :</p>
-              <Button variant="link" size="sm" onClick={() => { setEmail('client@test.com'); setPassword('password'); }}>Client</Button>
-              |
-              <Button variant="link" size="sm" onClick={() => { setEmail('coiffeur@test.com'); setPassword('password'); }}>Coiffeur</Button>
-              |
-              <Button variant="link" size="sm" onClick={() => { setEmail('admin@test.com'); setPassword('password'); }}>Admin</Button>
-            </div>
           </CardFooter>
         </form>
       </Card>
