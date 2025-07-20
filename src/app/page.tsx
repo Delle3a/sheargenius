@@ -18,18 +18,28 @@ export default async function Home() {
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 bg-card">
           <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline">
-                  Barbier Shear Genius
-                </h1>
-                <p className="max-w-[600px] text-muted-foreground md:text-xl mx-auto">
-                  Découvrez l'art du toilettage. Coupes de précision, rasages classiques et une atmosphère intemporelle. Prenez votre rendez-vous aujourd'hui.
-                </p>
-              </div>
-              <div className="flex flex-col gap-2 min-[400px]:flex-row justify-center">
-                <HeroActionButton />
-              </div>
+            <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 xl:grid-cols-[1fr_550px]">
+                <div className="flex flex-col justify-center space-y-4 text-center lg:text-left">
+                  <div className="space-y-2">
+                    <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline">
+                      Barbier Shear Genius
+                    </h1>
+                    <p className="max-w-[600px] text-muted-foreground md:text-xl mx-auto lg:mx-0">
+                      Découvrez l'art du toilettage. Coupes de précision, rasages classiques et une atmosphère intemporelle. Prenez votre rendez-vous aujourd'hui.
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-2 min-[400px]:flex-row justify-center lg:justify-start">
+                    <HeroActionButton />
+                  </div>
+                </div>
+                 <Image
+                  src="https://lh3.googleusercontent.com/gg-dl/AJfQ9KRe8Z-wcQHFLhAL4_XbVHyPGnDoiDNRu77NJu6I7FSik3dGeEsnbPRW_OHDS2BIFR7MP9tjId4t6SYhJfA64ImhKnqPS_srb04R1rrqtzuROGSrOBajSORIyIb9xJezJhfHZedaNyDHxHrPC8iGk8qZ7pi4zv_so4o_Fo484swP5McYxQ=s1024"
+                  width="550"
+                  height="310"
+                  alt="Hero"
+                  data-ai-hint="barbershop haircut"
+                  className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last"
+                />
             </div>
           </div>
         </section>
