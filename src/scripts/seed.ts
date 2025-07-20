@@ -2,8 +2,8 @@
 // Usage: npm run db:seed
 
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, writeBatch, getDocs, doc } from 'firebase/firestore';
-import { services as initialServices, barbers as initialBarbers, bookings as initialBookings, users as initialUsers } from '../src/lib/data';
+import { getFirestore, collection, writeBatch, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { services as initialServices, barbers as initialBarbers, bookings as initialBookings, users as initialUsers } from '../lib/data';
 
 // IMPORTANT: This script uses the same Firebase config as the app.
 // Make sure your src/lib/firebase/config.ts is correctly configured.
@@ -22,11 +22,42 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-async function seedCollection(collectionName: string, data: any[]) {
+async function clearCollection(collectionName: string) {
     const collectionRef = collection(db, collectionName);
     const snapshot = await getDocs(collectionRef);
-    if (!snapshot.empty) {
-        console.log(`Collection "${collectionName}" already contains data. Skipping seeding.`);
+    if (snapshot.empty) {
+        console.log(`Collection "${collectionName}" is already empty. Skipping clearing.`);
+        return;
+    }
+    const batch = writeBatch(db);
+    snapshot.docs.forEach(doc => {
+        batch.delete(doc.ref);
+    });
+    await batch.commit();
+    console.log(`Collection "${collectionName}" has been cleared.`);
+}
+
+
+async function seedCollection(collectionName: string, data: any[]) {
+    const collectionRef = collection(db, collectionName);
+    
+    // Check if the collection should be seeded even if it has data.
+    // For users and barbers, we'll overwrite with our seed data for consistency.
+    // For services and bookings, if the seed data is empty, we respect that.
+    const snapshot = await getDocs(collectionRef);
+    if (!snapshot.empty && data.length > 0) {
+        console.log(`Collection "${collectionName}" already contains data. Overwriting with new seed data.`);
+        // To be safe, we clear it first.
+        await clearCollection(collectionName);
+    } else if (!snapshot.empty && data.length === 0) {
+        console.log(`Collection "${collectionName}" contains data, but seed data is empty. Clearing collection.`);
+        await clearCollection(collectionName);
+        return; // Nothing more to do
+    }
+
+
+    if (data.length === 0) {
+        console.log(`Seed data for "${collectionName}" is empty. Skipping seeding.`);
         return;
     }
 
@@ -44,6 +75,13 @@ async function seedCollection(collectionName: string, data: any[]) {
 async function main() {
   console.log('Starting database seed...');
   try {
+    // Clear all collections first to ensure a clean slate
+    await clearCollection('services');
+    await clearCollection('barbers');
+    await clearCollection('users');
+    await clearCollection('bookings');
+    
+    // Now seed with the new (mostly empty) data
     await seedCollection('services', initialServices);
     await seedCollection('barbers', initialBarbers);
     await seedCollection('users', initialUsers);
